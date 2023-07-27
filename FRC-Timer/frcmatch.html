@@ -273,12 +273,13 @@
 </body>
 
 <script>
-
+    // Red/Blue alliance colors
     COLORS = [
         "#ED1C24",
         "#0066B3"
     ]
 
+    // Button keymap
     KEYMAP = [
         ['s', 0, 1],
         ['s', 0, -1],
@@ -289,19 +290,33 @@
         ['p', 1, 1],
         ['p', 1, -1],
     ]
-
+    // Scores array
     scores = [0, 0]
+    // Penalties array
     penalties = [0, 0]
 
+    // Total match time
     matchTime = 150;
-
+    // is currently running match
     isRunning = false;
+
+    // Last timer update time
     startTime = 0;
+
+    // Time remaining in match
     timeRemaining = matchTime;
+
+    // For flashing timer 
     flashCount = 0;
+
+    // Sounds Have been played
     teleopHasNotPlayed = true;
     endgameHasNotPlayed = true;
     finalHasNotBeenPlayed = true;
+
+    // Game is finished
+    isFinished = false;
+
 
     function updateScores() {
         document.getElementById('rs').innerText = `${scores[0]}`;
@@ -320,9 +335,9 @@
         } else if (code == "Enter") {
             stop();
             event.preventDefault();
-        } else if (key == 'r') {
+        } else if (key == 'r' && isFinished) {
             reveal();
-        } else if ("12345678".includes(key) && isRunning) {
+        } else if ("12345678".includes(key)) {
             let action = KEYMAP[parseInt(key) - 1]
             console.log(`${key}: ${action}`)
             if (action[0] == 's') {
@@ -401,6 +416,7 @@
         teleopHasNotPlayed = true;
         endgameHasNotPlayed = true;
         finalHasNotBeenPlayed = true;
+        isFinished = false;
     }
 
     function updateTime() {
@@ -432,6 +448,7 @@
 
     }
 
+    /*Main Funciton (does all updates)*/
     function main() {
         if (isRunning) {
             updateTime();
@@ -453,6 +470,7 @@
             new Audio("endbuzzer.mp3").play();
             document.getElementById("time").style.color = "red";
             finalHasNotBeenPlayed = false;
+            isFinished = true;
         }
 
         if (timeRemaining <= 0) {
