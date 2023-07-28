@@ -22,6 +22,6 @@
 - Input the event code to the "event_code" variable which is found in the url on TBA's website (example)\
    thebluealliance.com/event/ --> ****2023mndu**** <-- #event-insights
 - 'wanted_keys_2023' is where you will put the keys that you would like to make the table on, these are provided by the 'print_selected_keys()' method, which will output all keys, and the ones selected (by putting their corresponding number in the array) in green
-- 'shortened_key_names' provides a place to put key names that are smaller and more readable. These <em>MUST<em> match with what is entered in 'wanted_keys_2023' or the table will be labeled incorrectly. If you are putting OPR in the 3rd spot in one array, put it in the 3rd in the second array.
+- 'shortened_key_names' provides a place to put key names that are smaller and more readable. These <em>MUST</em> match with what is entered in 'wanted_keys_2023' or the table will be labeled incorrectly. If you are putting OPR in the 3rd spot in one array, put it in the 3rd in the second array.
 - 'get_top_teams()' gets the top teams in any selected category, as long as they are within the number passed in in any of the selected categories
 - 'sort_table_by()' will sort the table based on the passed in key, which is the actual key from TBA. Use the exact key for the category that you are looking for that is retuned by the 'print_selected_keys()' method
