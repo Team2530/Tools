@@ -50,7 +50,7 @@ def get_top_teams(num_teams):
     top_teams = []
     for key in key_names:
         for team in enumerate(all_data[key]):
-            if (team[0] < num_teams + 1) and is_unique(top_teams, team[1][0]):
+            if (team[0] < num_teams) and is_unique(top_teams, team[1][0]):
                 top_teams.append(team[1][0])
     return top_teams
 
