@@ -105,11 +105,18 @@ function reveal() {
   winningteam_el.style.color = COLORS[winner];
   winningteam_el.innerText = ["RED TEAM", "BLUE TEAM"][winner] + "!";
 
-  if (finalscores[1] == finalscores[0]) {
+  if (finalscores[1] == finalscores[0] && penalties[0] == penalties[1]) {
     // Handle tie WIP
     winningteam_el.style.color = "#FFCC00";
     winningteam_el.innerText = "TIED!";
   } else {
+    // If penalties aren't tied
+    if(finalscores[1] == finalscores[0]) {
+        winner = penalties[0] < penalties[1] ? 0 : 1;
+        winningteam_el.style.color = COLORS[winner];
+        winningteam_el.innerText = ["RED TEAM", "BLUE TEAM"][winner] + "!";
+    }
+
     document
       .getElementById(winner == 1 ? "fr" : "fb")
       .parentElement.classList.remove("winningteam");
