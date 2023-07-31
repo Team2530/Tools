@@ -67,7 +67,7 @@ def build_table():
         print_string += data_name + "\t   "
     print(print_string)
 
-    line_length = len(print_string)
+    line_length = len(print_string.expandtabs())
 
     print_string = ""
     index = 0
@@ -88,7 +88,7 @@ def build_table():
                     index += 1
 
         print(print_string)
-        print("-" * (line_length + 10))
+        print(colored("-", "dark_grey") * (line_length))
         print_string = ""
         index = 0
         rank_offset = 0
@@ -113,13 +113,16 @@ if __name__ == "__main__":
 
     # Get top n teams, so 10 will get all teams with any top 10 position
     # in a selected key
-    top_teams = get_top_teams(10)
+    top_teams = get_top_teams(1)
+
+    # Teams can also be added by putting them into the list
+    top_teams.append('2530')
 
     # Prints selected keys in green (Others are in white)
     print_selected_keys() 
 
     # Sorts table by given key
-    top_teams = sort_table_by("Foul Count Received")
+    top_teams = sort_table_by("OPR")
 
     #? Builds final table
     build_table()
