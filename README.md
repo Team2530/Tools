@@ -28,3 +28,8 @@
 ## Game-Planner
 - Game planner is designed to be a tool used when planning strategy for a match. You can draw over the field (WIP at this point, so it might be kinda broken)
 - Eventually, pieces can also be placed on the field, but other fixes will have to come first
+- Pen Tool: select to use a pen to draw on the field
+- Eraser Tool: select to erase drawings on the field
+- Piece Tool: WIP
+- Line Tool: Use to draw lines. Select the starting point and ending point and the line will be drawn. If you keep selecting new points, the line will continue to the new points. Select the line tool again to start a new line.
+- Clear: clears all drawings on the field

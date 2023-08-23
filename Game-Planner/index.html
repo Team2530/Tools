@@ -13,44 +13,42 @@
         height: 100%;
         padding: 0px;
         margin: 0px;
-
         overflow: hidden;
+        background-color: #161b22;
     }
 
     #field-canvas {
         background-color: #161b22;
+        /* Credits to PathPlanner, this is their field image
+        which looks great */
         background-image: url("field23.png");
         background-size: cover;
-
         width: 100%;
-        height: 100%;
-
         margin-top: 0px;
         padding: 0px;
     }
 
     .container {
         position: fixed;
+        margin-top: 0px;
+        margin-left: 0px;
         width: 25%;
-        top: 0%;
-        left: 50%;
-        padding: 0px;
-        transform: translate(-50%, 0);
     }
 
     .button-group {
         float: none;
         margin: auto;
-        align-items: center;
         width: 100%;
+        height: 50px;
     }
 
     .button-group button {
-        height: 60px;
-        width: 60px;
+        width: 15%;
+        height: 50%;
         border-radius: 10px;
         margin-right: 10px;
         margin-left: 0px;
+        font-size: small;
     }
 
     .nonactive {
@@ -62,11 +60,7 @@
         transition: 0.5s;
         background-color: white;
         color: black;
-        font-weight: bolder;
-    }
-
-    .button-group button:first-child {
-        margin-left: calc(50% - 140px);
+        font-weight: 900;
     }
 
 
@@ -77,6 +71,7 @@
             <button id="pen" class="nonactive">Pen</button>
             <button id="eraser" class="nonactive">Eraser</button>
             <button id="piece" class="nonactive">Piece</button>
+            <button id="line" class="nonactive">Line</button>
             <button id="clear" class="nonactive">Clear</button>
         </div>
     </div>
