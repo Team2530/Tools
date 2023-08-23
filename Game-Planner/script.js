@@ -13,6 +13,8 @@ pos = { x: 0, y: 0 };
 currentLinePos = { x: 0, y: 0 };
 isFirstLine = true;
 
+var isCubes = true;
+
 // Current mode
 const Mode = {
   DRAW: "draw",
@@ -49,6 +51,11 @@ clear.addEventListener("click", (event) => {
 
 piece.addEventListener("click", (event) => {
   selectTool(piece);
+  // Change to other piece only if is selected
+  if(currentMode == Mode.PIECE) {
+    isCubes = !isCubes;
+    piece.innerText = isCubes ? "Cube" : "Cone";
+  }
   currentMode = Mode.PIECE;
 });
 
@@ -61,8 +68,8 @@ line.addEventListener("click", (event) => {
 // Canvas listeners
 
 canvas.addEventListener("mousemove", draw);
-canvas.addEventListener("mouseup", setPosition);
-canvas.addEventListener("mousedown", setPosition);
+canvas.addEventListener("mouseup", handleClick);
+canvas.addEventListener("mousedown", handleClick);
 
 window.addEventListener("resize", resize);
 
@@ -83,27 +90,27 @@ function resize() {
 
 /**Draw on canvas */
 function draw(e) {
-    if (e.buttons !== 1) {
-        return;
-      }
-    
-      if (currentMode == Mode.DRAW) {
-        ctx.globalCompositeOperation = "source-over";
-        ctx.strokeStyle = "white";
-        ctx.lineWidth = 5;
-      } else if (currentMode == Mode.ERASE) {
-        ctx.globalCompositeOperation = "destination-out";
-        ctx.lineWidth = 50;
-      } else {
-        return;
-      }
-    
-      ctx.beginPath();
-      ctx.lineCap = "round";
-      ctx.moveTo(pos.x, pos.y);
-      setPosition(e);
-      ctx.lineTo(pos.x, pos.y);
-      ctx.stroke();
+  if (e.buttons !== 1) {
+    return;
+  }
+
+  if (currentMode == Mode.DRAW) {
+    ctx.globalCompositeOperation = "source-over";
+    ctx.strokeStyle = "white";
+    ctx.lineWidth = 5;
+  } else if (currentMode == Mode.ERASE) {
+    ctx.globalCompositeOperation = "destination-out";
+    ctx.lineWidth = 50;
+  } else {
+    return;
+  }
+
+  ctx.beginPath();
+  ctx.lineCap = "round";
+  ctx.moveTo(pos.x, pos.y);
+  handleClick(e);
+  ctx.lineTo(pos.x, pos.y);
+  ctx.stroke();
 }
 
 /**Draw lines */
@@ -112,7 +119,7 @@ function handleLine(e) {
     return;
   }
 
-  if(isFirstLine) {
+  if (isFirstLine) {
     currentLinePos.x = getPos(e).x;
     currentLinePos.y = getPos(e).y;
     isFirstLine = false;
@@ -132,24 +139,52 @@ function handleLine(e) {
     ctx.stroke();
   }
 }
-/**Set mouse position, different if in line mode */
-function setPosition(e) {
-    // On mouse down event and line
-    if (currentMode == Mode.LINE) {
-        handleLine(e);
-        return;
-    }
+
+function handlePiece(e) {
+  if(e.buttons !== 1) {
+    return;
+  }
+
+  ctx.globalCompositeOperation = "source-over";
+  let path = new Path2D();
+  if(isCubes) {
+    path.roundRect(getPos(e).x - 15, getPos(e).y - 15, 30, 30, 10);
+    ctx.fillStyle = "#8d24d4";
+  } else {
+    ctx.fillStyle = "#ffea03";
+    path.roundRect(getPos(e).x - 15, getPos(e).y - 15, 30, 30, 3);
+  }
+  
+  ctx.fill(path);
+
+  if(!isCubes) {
+    ctx.fillStyle = "#000000";
+    path = new Path2D();
+    path.ellipse(getPos(e).x, getPos(e).y, 5, 5, 0, 0 , 2 * Math.PI);
+    ctx.fill(path);
+  }
+}
+/**Handles a click event*/
+function handleClick(e) {
+  // On mouse down event and line
+  if (currentMode == Mode.LINE) {
+    handleLine(e);
+    return;
+  } else if (currentMode == Mode.PIECE) {
+    handlePiece(e);
+    return;
+  }
 
   // account for offset
-  pos.x = e.pageX - canvas.offsetLeft;
-  pos.y = e.pageY - canvas.offsetTop;
+  pos.x = getPos(e).x;
+  pos.y = getPos(e).y;
 }
 
 /**Get mouse position on screen */
 function getPos(e) {
   x = e.pageX - canvas.offsetLeft;
   y = e.pageY - canvas.offsetTop;
-  return {x, y};
+  return { x, y };
 }
 
 /**Clear all drawings on field */
