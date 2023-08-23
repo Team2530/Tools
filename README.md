@@ -11,6 +11,8 @@
 
 ## Scouting
 [team-table.py](./Scouting/team-table.py) will construct and print to the terminal a table of the top teams at a given regional. 
+- You will need a working installation of python as well as the requests and termcolor modules
+install via <em>'pip install requests'</em> and <em>'pip install termcolor'</em> or <em>pip3</em> if you are using python3
 - All code that needs to be changed will be under the following line...
   
   ```python

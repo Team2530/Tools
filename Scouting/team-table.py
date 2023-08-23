@@ -22,7 +22,7 @@ def print_selected_keys():
     for key in enumerate(all_data):
         if(wanted_keys_2023.count(key[0]) == 1):
             if(isWindows):
-                print(key + "<-----")
+                print(str(key) + "\t<--- SELECTED")
             else:
                 print(colored(key, 'green'))
             
