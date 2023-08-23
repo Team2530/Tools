@@ -24,3 +24,7 @@
 - 'shortened_key_names' provides a place to put key names that are smaller and more readable. These <em>MUST</em> match with what is entered in 'wanted_keys_2023' or the table will be labeled incorrectly. If you are putting OPR in the 3rd spot in one array, put it in the 3rd in the second array.
 - 'get_top_teams()' gets the top teams in any selected category, as long as they are within the number passed in in any of the selected categories. You can also just put teams into the array inside single quotes to compare their stats as well.
 - 'sort_table_by()' will sort the table based on the passed in key, which is the actual key from TBA. Use the exact key for the category that you are looking for that is retuned by the 'print_selected_keys()' method
+
+## Game-Planner
+- Game planner is designed to be a tool used when planning strategy for a match. You can draw over the field (WIP at this point, so it might be kinda broken)
+- Eventually, pieces can also be placed on the field, but other fixes will have to come first
