@@ -2,8 +2,7 @@
 
 ## FRC-Timer
 [The timer](./FRC-Timer) is for FRC matches, which will play sounds and has options for scoring (currently configured for Summer Camp).
-- The allotted time can be changed in the [frcmatch.html](./FRC-Timer/frcmatch.html) file,
-  scrolling to the <script> tag, and finding the variable "matchTime" which is the match time in seconds
+- The allotted time can be changed in the [script.js](./FRC-Timer/script.js) file and finding the 'matchTime' variable which is the total match time in seconds.
 - Use the buttons (Start, Stop, Reset) to do their respective actions to the timer
 - Space can also start, and enter stop
 - The number keys 1-8 are for keeping score, use 1/2 for adding/subtracting for the red alliance, and 3/4 for the blue alliance
