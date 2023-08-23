@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Planner</title>
+    <script defer src="./script.js"></script>
+</head>
+<style>
+
+    html, body {
+        width: 100%;
+        height: 100%;
+        padding: 0px;
+        margin: 0px;
+
+        overflow: hidden;
+    }
+
+    #field-canvas {
+        background-color: #161b22;
+        background-image: url("field23.png");
+        background-size: cover;
+
+        width: 100%;
+        height: 100%;
+
+        margin-top: 0px;
+        padding: 0px;
+    }
+
+    .container {
+        position: fixed;
+        width: 25%;
+        top: 0%;
+        left: 50%;
+        padding: 0px;
+        transform: translate(-50%, 0);
+    }
+
+    .button-group {
+        float: none;
+        margin: auto;
+        align-items: center;
+        width: 100%;
+    }
+
+    .button-group button {
+        height: 60px;
+        width: 60px;
+        border-radius: 10px;
+        margin-right: 10px;
+        margin-left: 0px;
+    }
+
+    .nonactive {
+        color: white;
+        background-color: #161b22;
+    }
+
+    .selected-tool {
+        transition: 0.5s;
+        background-color: white;
+        color: black;
+        font-weight: bolder;
+    }
+
+    .button-group button:first-child {
+        margin-left: calc(50% - 140px);
+    }
+
+
+</style>
+<body>
+    <div id="topcontainer" class="container">
+        <div id="tool-buttons" class="button-group">
+            <button id="pen" class="nonactive">Pen</button>
+            <button id="eraser" class="nonactive">Eraser</button>
+            <button id="piece" class="nonactive">Piece</button>
+            <button id="clear" class="nonactive">Clear</button>
+        </div>
+    </div>
+    <canvas id="field-canvas"></canvas>
+    
+</body>
+</html>
