@@ -1,6 +1,12 @@
 import json
 import requests
 from termcolor import colored
+import platform
+
+isWindows = False
+
+if(platform.system() == "Windows"):
+    isWindows = True
 
 def getTeams(event_code):
     tba = requests.get("https://www.thebluealliance.com/event/" + event_code + "#event-insights")
@@ -15,7 +21,11 @@ def printKeys():
 def print_selected_keys():
     for key in enumerate(all_data):
         if(wanted_keys_2023.count(key[0]) == 1):
-            print(colored(key, 'green'))
+            if(isWindows):
+                print(key + "<-----")
+            else:
+                print(colored(key, 'green'))
+            
         else:
             print(key)
 
@@ -80,15 +90,19 @@ def build_table():
                     if rank[0] > 9: rank_offset += 1
                     if rank[0] <= 9: rank_offset -= 1
                     colored_string = str(rank[0] + 1) + " (" + str(rank[1][1])[0:4] + ")\t   "
-                    if rank[0] == 0: colored_string = colored(colored_string, 'yellow')
-                    if rank[0] < 3: colored_string = colored(colored_string, 'green')
-                    if rank[0] < 7 and rank[0] > 2: colored_string = colored(colored_string, "blue")
-                    if rank[0] > 30: colored_string = colored(colored_string, "red")
+                    if(not isWindows):
+                        if rank[0] == 0: colored_string = colored(colored_string, 'yellow')
+                        if rank[0] < 3: colored_string = colored(colored_string, 'green')
+                        if rank[0] < 7 and rank[0] > 2: colored_string = colored(colored_string, "blue")
+                        if rank[0] > 30: colored_string = colored(colored_string, "red")
                     print_string += colored_string
                     index += 1
 
         print(print_string)
-        print(colored("-", "dark_grey") * (line_length))
+        if(isWindows):
+            print("-" * (line_length))
+        else:
+            print(colored("-", "dark_grey") * (line_length))
         print_string = ""
         index = 0
         rank_offset = 0
