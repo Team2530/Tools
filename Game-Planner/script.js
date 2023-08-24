@@ -85,11 +85,14 @@ function selectTool(id) {
 /**On resize window, update canvas width and height */
 function resize() {
   ctx.canvas.width = window.innerWidth;
-  ctx.canvas.height = window.innerHeight;
+  var image = document.getElementById("field-image");
+  // Set width based on image original height and width, so that it should fit better on smaller screens
+  ctx.canvas.height = (image.naturalHeight / image.naturalWidth) * window.innerWidth;
 }
 
 /**Draw on canvas */
 function draw(e) {
+  // If finger/mouse isn't currently being pressed, return
   if (e.buttons !== 1) {
     return;
   }
@@ -105,6 +108,7 @@ function draw(e) {
     return;
   }
 
+  // Draw line/ erase
   ctx.beginPath();
   ctx.lineCap = "round";
   ctx.moveTo(pos.x, pos.y);
@@ -115,17 +119,19 @@ function draw(e) {
 
 /**Draw lines */
 function handleLine(e) {
+  // If finger/mouse isn't currently being pressed, return
   if (e.buttons !== 1) {
     return;
   }
 
+  // If startpoint for line, just save the position for later
   if (isFirstLine) {
     currentLinePos.x = getPos(e).x;
     currentLinePos.y = getPos(e).y;
     isFirstLine = false;
     return;
   }
-
+  // If new enpoint for line, draw the line
   if (currentLinePos.x != getPos(e).x && currentLinePos.y != getPos(e).y) {
     ctx.beginPath();
     ctx.lineCap = "round";
@@ -141,6 +147,7 @@ function handleLine(e) {
 }
 
 function handlePiece(e) {
+  // If mouse button/finger isn't currently active, return
   if (e.buttons !== 1) {
     return;
   }
@@ -148,15 +155,19 @@ function handlePiece(e) {
   ctx.globalCompositeOperation = "source-over";
   let path = new Path2D();
   if (isCubes) {
-    path.roundRect(getPos(e).x - 15, getPos(e).y - 15, 30, 30, 10);
+    // Rounded purple rectangle for cubes
     ctx.fillStyle = "#8d24d4";
+    path.roundRect(getPos(e).x - 15, getPos(e).y - 15, 30, 30, 10);
+    
   } else {
+    // Rounded yellow rectangle for cones
     ctx.fillStyle = "#ffea03";
     path.roundRect(getPos(e).x - 15, getPos(e).y - 15, 30, 30, 3);
   }
 
   ctx.fill(path);
 
+  // Fill in black circle for middle of cones
   if (!isCubes) {
     ctx.fillStyle = "#000000";
     path = new Path2D();
@@ -180,7 +191,7 @@ function handleClick(e) {
   pos.y = getPos(e).y;
 }
 
-/**Get mouse position on screen */
+/**Get mouse/finger position on screen */
 function getPos(e) {
   let touch =
     (e.touches && e.touches[0]) ||
