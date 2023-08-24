@@ -44,6 +44,7 @@ eraser.addEventListener("click", (event) => {
 
 clear.addEventListener("click", (event) => {
   clearField();
+  canvas.style.backgroundImage = "field23.png";
 
   // Reset line status on clear
   isFirstLine = true;
