@@ -29,6 +29,7 @@ install via <em>'pip install requests'</em> and <em>'pip install termcolor'</em>
 
 ## Game-Planner
 [Game planner](./Game-Planner) is designed to be a tool for using when planning strategy before a match. You can download the source and run it locally, or use the link below to access it remotely.
+- The background comes from [Path Planner](https://github.com/mjansen4857/pathplanner) which is from their amazing path generation tool! Check it out!
 - You can use the [web version here](https://team2530.github.io/Game-Planner/) If the field doesn't show up right away, refresh the page, that seems to bring it up.
 ### Tools
 - Pen Tool: select to use a pen to draw on the field
