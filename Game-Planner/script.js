@@ -52,7 +52,7 @@ clear.addEventListener("click", (event) => {
 piece.addEventListener("click", (event) => {
   selectTool(piece);
   // Change to other piece only if is selected
-  if(currentMode == Mode.PIECE) {
+  if (currentMode == Mode.PIECE) {
     isCubes = !isCubes;
     piece.innerText = isCubes ? "Cube" : "Cone";
   }
@@ -67,9 +67,9 @@ line.addEventListener("click", (event) => {
 
 // Canvas listeners
 
-canvas.addEventListener("mousemove", draw);
-canvas.addEventListener("mouseup", handleClick);
-canvas.addEventListener("mousedown", handleClick);
+canvas.addEventListener("pointermove", draw);
+canvas.addEventListener("pointerup", handleClick);
+canvas.addEventListener("pointerdown", handleClick);
 
 window.addEventListener("resize", resize);
 
@@ -141,26 +141,26 @@ function handleLine(e) {
 }
 
 function handlePiece(e) {
-  if(e.buttons !== 1) {
+  if (e.buttons !== 1) {
     return;
   }
 
   ctx.globalCompositeOperation = "source-over";
   let path = new Path2D();
-  if(isCubes) {
+  if (isCubes) {
     path.roundRect(getPos(e).x - 15, getPos(e).y - 15, 30, 30, 10);
     ctx.fillStyle = "#8d24d4";
   } else {
     ctx.fillStyle = "#ffea03";
     path.roundRect(getPos(e).x - 15, getPos(e).y - 15, 30, 30, 3);
   }
-  
+
   ctx.fill(path);
 
-  if(!isCubes) {
+  if (!isCubes) {
     ctx.fillStyle = "#000000";
     path = new Path2D();
-    path.ellipse(getPos(e).x, getPos(e).y, 5, 5, 0, 0 , 2 * Math.PI);
+    path.ellipse(getPos(e).x, getPos(e).y, 5, 5, 0, 0, 2 * Math.PI);
     ctx.fill(path);
   }
 }
@@ -182,15 +182,11 @@ function handleClick(e) {
 
 /**Get mouse position on screen */
 function getPos(e) {
-  if(e.type == 'touchstart' || e.type == 'touchmove' || e.type == 'touchend' || e.type == 'touchcancel'){
-    var evt = (typeof e.originalEvent === 'undefined') ? e : e.originalEvent;
-    var touch = evt.touches[0] || evt.changedTouches[0];
-    x = touch.pageX;
-    y = touch.pageY;
-} else if (e.type == 'mousedown' || e.type == 'mouseup' || e.type == 'mousemove' || e.type == 'mouseover'|| e.type=='mouseout' || e.type=='mouseenter' || e.type=='mouseleave') {
-    x = e.clientX;
-    y = e.clientY;
-}
+  let touch =
+    (e.touches && e.touches[0]) ||
+    (e.pointerType && e.pointerType === "touch" && e);
+  let x = (touch || e).clientX - canvas.offsetLeft;
+  let y = (touch || e).clientY - canvas.offsetTop;
   return { x, y };
 }
 
