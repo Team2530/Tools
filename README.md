@@ -28,10 +28,13 @@ install via <em>'pip install requests'</em> and <em>'pip install termcolor'</em>
 - 'sort_table_by()' will sort the table based on the passed in key, which is the actual key from TBA. Use the exact key for the category that you are looking for that is retuned by the 'print_selected_keys()' method
 
 ## Game-Planner
-- Game planner is designed to be a tool used when planning strategy for a match. You can draw over the field (WIP at this point, so it might be kinda broken)
-- Eventually, pieces can also be placed on the field, but other fixes will have to come first
+[Game planner](./Game-Planner) is designed to be a tool for using when planning strategy before a match. You can download the source and run it locally, or use the link below to access it remotely.
+- The background comes from [Path Planner](https://github.com/mjansen4857/pathplanner) which is from their amazing path generation tool! Check it out!
+- You can use the [web version here](https://team2530.github.io/Game-Planner/) If the field doesn't show up right away, refresh the page, that seems to bring it up.
+### Tools
 - Pen Tool: select to use a pen to draw on the field
 - Eraser Tool: select to erase drawings on the field
-- Piece Tool: WIP
+- Piece Tool: Click to place cones/cubes on the field. When active, click again to switch which piece you're placing
 - Line Tool: Use to draw lines. Select the starting point and ending point and the line will be drawn. If you keep selecting new points, the line will continue to the new points. Select the line tool again to start a new line.
 - Clear: clears all drawings on the field
+- (Apologies if you look at the source and it's ugly, I'm working on learning html/js)
