@@ -5,7 +5,7 @@ const pen = document.getElementById("pen");
 const eraser = document.getElementById("eraser");
 const clear = document.getElementById("clear");
 const piece = document.getElementById("piece");
-const line = document.getElementById("line");
+const arrow = document.getElementById("arrow");
 
 // Mouse position
 pos = { x: 0, y: 0 };
@@ -20,9 +20,11 @@ const Mode = {
   DRAW: "draw",
   ERASE: "erase",
   PIECE: "piece",
-  LINE: "line",
+  ARROW: "arrow",
   NONE: "none",
 };
+
+var color = "white";
 
 var currentMode = Mode.NONE;
 
@@ -60,10 +62,10 @@ piece.addEventListener("click", (event) => {
   currentMode = Mode.PIECE;
 });
 
-line.addEventListener("click", (event) => {
-  selectTool(line);
+arrow.addEventListener("click", (event) => {
+  selectTool(arrow);
   isFirstLine = true;
-  currentMode = Mode.LINE;
+  currentMode = Mode.ARROW;
 });
 
 // Canvas listeners
@@ -100,7 +102,7 @@ function draw(e) {
 
   if (currentMode == Mode.DRAW) {
     ctx.globalCompositeOperation = "source-over";
-    ctx.strokeStyle = "white";
+    ctx.strokeStyle = color;
     ctx.lineWidth = 5;
   } else if (currentMode == Mode.ERASE) {
     ctx.globalCompositeOperation = "destination-out";
@@ -132,18 +134,41 @@ function handleLine(e) {
     isFirstLine = false;
     return;
   }
-  // If new enpoint for line, draw the line
+  // If new endpoint for line, draw the arrow
   if (currentLinePos.x != getPos(e).x && currentLinePos.y != getPos(e).y) {
-    ctx.beginPath();
     ctx.lineCap = "round";
-    ctx.strokeStyle = "white";
+    ctx.strokeStyle = color;
+    ctx.fillStyle = color;
     ctx.globalCompositeOperation = "source-over";
     ctx.lineWidth = 5;
+    
+    endX = getPos(e).x;
+    endY = getPos(e).y;
+    angle = Math.atan2(endY - currentLinePos.y, endX - currentLinePos.x);
+    head_angle = Math.PI / 6;
+
+    // Adjust for line thickness
+    endY -= ctx.lineWidth * Math.sin(angle);
+    endX -= ctx.lineWidth * Math.cos(angle);
+
+    ctx.beginPath();
     ctx.moveTo(currentLinePos.x, currentLinePos.y);
-    currentLinePos.x = e.pageX - canvas.offsetLeft;
-    currentLinePos.y = e.pageY - canvas.offsetTop;
-    ctx.lineTo(currentLinePos.x, currentLinePos.y);
+    // Tip of arrow at touch/cursor point
+    ctx.lineTo(endX, endY);
     ctx.stroke();
+
+
+    ctx.beginPath();
+    ctx.lineTo(endX, endY);
+    // head liength of 10px and angle between of 30 deg
+    ctx.lineTo(endX - 10 * Math.cos(angle - Math.PI / 6), endY - 10 * Math.sin(angle - Math.PI / 6));
+    ctx.lineTo(endX - 10 * Math.cos(angle + Math.PI / 6), endY - 10 * Math.sin(angle + Math.PI / 6));
+    ctx.closePath();
+    ctx.stroke();
+    ctx.fill();
+
+    currentLinePos.x = getPos(e).x;
+    currentLinePos.y = getPos(e).y;
   }
 }
 
@@ -168,9 +193,10 @@ function handlePiece(e) {
 
   ctx.fill(path);
 
-  // Fill in black circle for middle of cones
+  // Fill in clear circle for middle of cones
   if (!isCubes) {
     ctx.fillStyle = "#000000";
+    ctx.globalCompositeOperation = "destination-out";
     path = new Path2D();
     path.ellipse(getPos(e).x, getPos(e).y, 5, 5, 0, 0, 2 * Math.PI);
     ctx.fill(path);
@@ -179,7 +205,7 @@ function handlePiece(e) {
 /**Handles a click event*/
 function handleClick(e) {
   // On mouse down event and line
-  if (currentMode == Mode.LINE) {
+  if (currentMode == Mode.ARROW) {
     handleLine(e);
     return;
   } else if (currentMode == Mode.PIECE) {
