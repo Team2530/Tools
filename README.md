@@ -37,13 +37,18 @@
 [Game planner](./Game-Planner) is designed to be a tool for using when planning strategy before a match. You can download the source and run it locally, or use the link below to access it remotely.
 
 - The background comes from [Path Planner](https://github.com/mjansen4857/pathplanner) which is from their amazing path generation tool! Check it out!
-- You can use the [web version here](https://team2530.github.io/Game-Planner/) If the field doesn't show up right away, refresh the page, that seems to bring it up.
+- You can use the [web version here](https://team2530.github.io/Game-Planner/) If the field doesn't show up right away, refresh the page, that seems to bring it up. May not be completely up to date as of now, when major changes occur, it will be updated.
 
 ### Tools
-
 - Pen Tool: select to use a pen to draw on the field
 - Eraser Tool: select to erase drawings on the field
 - Piece Tool: Click to place cones/cubes on the field. When active, click again to switch which piece you're placing
-- Line Tool: Use to draw lines. Select the starting point and ending point and the line will be drawn. If you keep selecting new points, the line will continue to the new points. Select the line tool again to start a new line.
-- Clear: clears all drawings on the field
-- (Apologies if you look at the source and it's ugly, I'm working on learning html/js)
+- Arrow Tool: Use to draw arrows. Select the starting point and ending point and the arrow will be drawn. If you keep selecting new points, the arrow will continue to the new points. Select the arrow tool again to start a new arrow.
+- Color circles: Select a color circle to use it for your pen and arrow color
+
+### Features in development
+- Different modes for Auto, teleop, and endgame
+- Robot tool for placing robots on field
+- Zone tool for marking areas
+- Polygon tool for marking areas
+- Reset for resetting all fields (auto, teleop, and endgame)
