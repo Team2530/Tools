@@ -18,7 +18,7 @@ var pos = { x: 0, y: 0 };
 
 var currentLinePos = { x: 0, y: 0 };
 
-var isFirstLine = true;
+var isLineStart = true;
 var isFirstClick = true;
 
 var isCubes = true;
@@ -58,7 +58,7 @@ clear.addEventListener("click", (event) => {
   canvas.style.backgroundImage = "field23.png";
 
   // Reset line status on clear
-  isFirstLine = true;
+  isLineStart = true;
   isFirstClick = true;
 });
 
@@ -74,7 +74,7 @@ piece.addEventListener("click", (event) => {
 
 arrow.addEventListener("click", (event) => {
   selectTool(arrow);
-  isFirstLine = true;
+  isLineStart = true;
   isFirstClick = true;
   currentMode = Mode.ARROW;
 });
@@ -106,7 +106,7 @@ function handleSideBar() {
 
   sidebarIsOpen = !sidebarIsOpen;
   // If sidebar opens, reset arrow/line status
-  isFirstLine = true;
+  isLineStart = true;
 
   isFirstClick = true;
 }
@@ -162,16 +162,11 @@ function draw(e) {
 
 /**Draw lines */
 function handleLine(e) {
-  // If finger/mouse isn't currently being pressed, return
-  if (e.buttons !== 1) {
-    return;
-  }
-
   // If startpoint for line, just save the position for later
-  if (isFirstLine) {
+  if (isLineStart) {
     currentLinePos.x = getPos(e).x;
     currentLinePos.y = getPos(e).y;
-    isFirstLine = false;
+    isLineStart = false;
     return;
   }
   // If new endpoint for line, draw the arrow
@@ -249,14 +244,21 @@ function handlePiece(e) {
 }
 /**Handles a click event*/
 function handleClick(e) {
+  console.log(e.type);
   // On mouse down event and line
   if (!sidebarIsOpen) {
-    if (currentMode == Mode.ARROW) {
-      handleLine(e);
-      return;
-    } else if (currentMode == Mode.PIECE) {
+    if (currentMode == Mode.PIECE) {
       handlePiece(e);
       return;
+    }
+
+    if(currentMode == Mode.ARROW) {
+      if(isLineStart && e.type == "pointerdown") {
+        handleLine(e);
+      } else if(!isLineStart && e.type == "pointerup") {
+        handleLine(e);
+        isLineStart = true;
+      }
     }
 
     if (e.type == "pointerdown" || e.type == "pointermove") {

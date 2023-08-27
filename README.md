@@ -43,7 +43,7 @@
 - Pen Tool: select to use a pen to draw on the field
 - Eraser Tool: select to erase drawings on the field
 - Piece Tool: Click to place cones/cubes on the field. When active, click again to switch which piece you're placing
-- Arrow Tool: Use to draw arrows. Select the starting point and ending point and the arrow will be drawn. If you keep selecting new points, the arrow will continue to the new points. Select the arrow tool again to start a new arrow.
+- Arrow Tool: Use to draw arrows. Click to start arrow, and release to draw endpoint where you released
 - Color circles: Select a color circle to use it for your pen and arrow color
 
 ### Features in development
