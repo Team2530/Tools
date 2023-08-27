@@ -71,8 +71,6 @@
       position: fixed;
       top: 0px;
       right: 0px;
-      overflow-y: scroll;
-      overflow-x: hidden;
     }
 
     /* Tools elements in sidebar */
@@ -87,10 +85,6 @@
       -moz-user-select: none;
     }
 
-    #sidebar p {
-      font-size: 20px;
-    }
-
     /* Tools elments in sidebar when hovered */
     #sidebar p:hover {
       transition: 0.2s;
@@ -100,7 +94,8 @@
 
     /* Spacing between sidebar divs */
     .inner-sidebar-div {
-      margin-bottom: 5%;
+      margin-bottom: 2%;
+      height: 25%;
     }
     
     /* Sidebar when closed */
@@ -141,6 +136,12 @@
     .icon-hidden {
       display: none;
       transition: 0.2ms;
+    }
+
+    #color-selector {
+      position: absolute;
+      bottom: 0px;
+      left: 10px;
     }
 
     .circle {
