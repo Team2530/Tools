@@ -7,11 +7,19 @@ const clear = document.getElementById("clear");
 const piece = document.getElementById("piece");
 const arrow = document.getElementById("arrow");
 
-// Mouse position
-pos = { x: 0, y: 0 };
+const sidebar = document.getElementById("sidebar");
+const sidebarIcon = document.getElementById("sidebar-icon");
 
-currentLinePos = { x: 0, y: 0 };
-isFirstLine = true;
+var sidebarIsOpen = false;
+var sidebarJustClosed = true;
+
+// Mouse position
+var pos = { x: 0, y: 0 };
+
+var currentLinePos = { x: 0, y: 0 };
+
+var isFirstLine = true;
+var isFirstClick = true;
 
 var isCubes = true;
 
@@ -24,7 +32,8 @@ const Mode = {
   NONE: "none",
 };
 
-var color = "white";
+var selectedColor = "white";
+var selectedColorElement = document.getElementById("color-white");
 
 var currentMode = Mode.NONE;
 
@@ -50,6 +59,7 @@ clear.addEventListener("click", (event) => {
 
   // Reset line status on clear
   isFirstLine = true;
+  isFirstClick = true;
 });
 
 piece.addEventListener("click", (event) => {
@@ -65,6 +75,7 @@ piece.addEventListener("click", (event) => {
 arrow.addEventListener("click", (event) => {
   selectTool(arrow);
   isFirstLine = true;
+  isFirstClick = true;
   currentMode = Mode.ARROW;
 });
 
@@ -75,6 +86,30 @@ canvas.addEventListener("pointerup", handleClick);
 canvas.addEventListener("pointerdown", handleClick);
 
 window.addEventListener("resize", resize);
+
+document
+  .getElementById("sidebar-icon")
+  .addEventListener("pointerdown", handleSideBar);
+
+function handleSideBar() {
+  if (sidebarIsOpen) {
+    sidebar.classList.remove("sidebar-visible");
+    sidebar.classList.add("sidebar-hidden");
+    sidebarIcon.classList.remove("icon-hidden");
+    sidebarIcon.classList.add("icon-visible");
+  } else {
+    sidebar.classList.remove("sidebar-hidden");
+    sidebar.classList.add("sidebar-visible");
+    sidebarIcon.classList.remove("icon-visible");
+    sidebarIcon.classList.add("icon-hidden");
+  }
+
+  sidebarIsOpen = !sidebarIsOpen;
+  // If sidebar opens, reset arrow/line status
+  isFirstLine = true;
+
+  isFirstClick = true;
+}
 
 /**Select tool */
 function selectTool(id) {
@@ -90,11 +125,16 @@ function resize() {
   ctx.canvas.width = window.innerWidth;
   var image = document.getElementById("field-image");
   // Set width based on image original height and width, so that it should fit better on smaller screens
-  ctx.canvas.height = (image.naturalHeight / image.naturalWidth) * window.innerWidth;
+  ctx.canvas.height =
+    (image.naturalHeight / image.naturalWidth) * window.innerWidth;
 }
 
 /**Draw on canvas */
 function draw(e) {
+  if (isFirstClick) {
+    handleClick(e);
+    isFirstClick = false;
+  }
   // If finger/mouse isn't currently being pressed, return
   if (e.buttons !== 1) {
     return;
@@ -102,7 +142,7 @@ function draw(e) {
 
   if (currentMode == Mode.DRAW) {
     ctx.globalCompositeOperation = "source-over";
-    ctx.strokeStyle = color;
+    ctx.strokeStyle = selectedColor;
     ctx.lineWidth = 5;
   } else if (currentMode == Mode.ERASE) {
     ctx.globalCompositeOperation = "destination-out";
@@ -111,7 +151,7 @@ function draw(e) {
     return;
   }
 
-  // Draw line/ erase
+  // Draw line / erase
   ctx.beginPath();
   ctx.lineCap = "round";
   ctx.moveTo(pos.x, pos.y);
@@ -137,11 +177,11 @@ function handleLine(e) {
   // If new endpoint for line, draw the arrow
   if (currentLinePos.x != getPos(e).x && currentLinePos.y != getPos(e).y) {
     ctx.lineCap = "round";
-    ctx.strokeStyle = color;
-    ctx.fillStyle = color;
+    ctx.strokeStyle = selectedColor;
+    ctx.fillStyle = selectedColor;
     ctx.globalCompositeOperation = "source-over";
     ctx.lineWidth = 5;
-    
+
     endX = getPos(e).x;
     endY = getPos(e).y;
     angle = Math.atan2(endY - currentLinePos.y, endX - currentLinePos.x);
@@ -157,12 +197,17 @@ function handleLine(e) {
     ctx.lineTo(endX, endY);
     ctx.stroke();
 
-
     ctx.beginPath();
     ctx.lineTo(endX, endY);
     // head liength of 10px and angle between of 30 deg
-    ctx.lineTo(endX - 10 * Math.cos(angle - Math.PI / 6), endY - 10 * Math.sin(angle - Math.PI / 6));
-    ctx.lineTo(endX - 10 * Math.cos(angle + Math.PI / 6), endY - 10 * Math.sin(angle + Math.PI / 6));
+    ctx.lineTo(
+      endX - 10 * Math.cos(angle - Math.PI / 6),
+      endY - 10 * Math.sin(angle - Math.PI / 6)
+    );
+    ctx.lineTo(
+      endX - 10 * Math.cos(angle + Math.PI / 6),
+      endY - 10 * Math.sin(angle + Math.PI / 6)
+    );
     ctx.closePath();
     ctx.stroke();
     ctx.fill();
@@ -174,7 +219,8 @@ function handleLine(e) {
 
 function handlePiece(e) {
   // If mouse button/finger isn't currently active, return
-  if (e.buttons !== 1) {
+  if (e.buttons !== 1 || isFirstClick) {
+    isFirstClick = false;
     return;
   }
 
@@ -184,7 +230,6 @@ function handlePiece(e) {
     // Rounded purple rectangle for cubes
     ctx.fillStyle = "#8d24d4";
     path.roundRect(getPos(e).x - 15, getPos(e).y - 15, 30, 30, 10);
-    
   } else {
     // Rounded yellow rectangle for cones
     ctx.fillStyle = "#ffea03";
@@ -205,17 +250,26 @@ function handlePiece(e) {
 /**Handles a click event*/
 function handleClick(e) {
   // On mouse down event and line
-  if (currentMode == Mode.ARROW) {
-    handleLine(e);
-    return;
-  } else if (currentMode == Mode.PIECE) {
-    handlePiece(e);
-    return;
-  }
+  if (!sidebarIsOpen) {
+    if (currentMode == Mode.ARROW) {
+      handleLine(e);
+      return;
+    } else if (currentMode == Mode.PIECE) {
+      handlePiece(e);
+      return;
+    }
 
-  // account for offset
-  pos.x = getPos(e).x;
-  pos.y = getPos(e).y;
+    if (e.type == "pointerdown" || e.type == "pointermove") {
+      // account for offset
+      pos.x = getPos(e).x;
+      pos.y = getPos(e).y;
+    }
+  } else {
+    // Only fire sidebar on pointerdown event
+    if (e.type == "pointerdown") {
+      handleSideBar();
+    }
+  }
 }
 
 /**Get mouse/finger position on screen */
@@ -231,4 +285,12 @@ function getPos(e) {
 /**Clear all drawings on field */
 function clearField() {
   ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+}
+
+function selectColor(event) {
+  selectedColorElement.classList.remove("selected-color");
+  selectedColorElement = document.getElementById(event.currentTarget.id);
+  selectedColorElement.classList.add("selected-color");
+  selectedColor = event.currentTarget.style.backgroundColor;
+  event.currentTarget.classList.add("selected-circle");
 }

@@ -1,81 +1,198 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Game Planner</title>
     <script defer src="./script.js"></script>
-</head>
-<style>
-
-    html, body {
-        width: 100%;
-        height: 100%;
-        padding: 0px;
-        margin: 0px;
-        overflow: hidden;
-        background-color: #161b22;
+  </head>
+  <style>
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      padding: 0px;
+      margin: 0px;
+      overflow: hidden;
+      background-color: #161b22;
     }
-
+    /* Canvas for drawing, which field is on */
     #field-canvas {
-        background-color: #161b22;
-        /* Credits to PathPlanner, this is their field image
+      background-color: #161b22;
+      /* Credits to PathPlanner, this is their field image
         which looks great */
-        background-image: url("field23.png");
-        background-size: cover;
-        width: 100%;
-        margin-top: 0px;
-        padding: 0px;
+      background-image: url("field23.png");
+      background-size: cover;
+      width: 100%;
+      margin-top: 0px;
+      padding: 0px;
     }
-
+    /* Containter div for buttons */
     .container {
-        position: fixed;
-        margin-top: 0px;
-        margin-left: 0px;
-        width: 40%;
+      position: fixed;
+      margin-top: 0px;
+      margin-left: 0px;
+      width: 40%;
     }
-
+    /* Button group itself */
     .button-group {
-        float: none;
-        margin: auto;
-        width: 100%;
-        height: 50px;
+      float: none;
+      margin: auto;
+      width: 100%;
+      height: 50px;
     }
-
+    /* Buttons in group */
     .button-group button {
-        width: 15%;
-        height: 50%;
-        border-radius: 10px;
-        margin-right: 10px;
-        margin-left: 0px;
-        font-size: small;
+      width: 15%;
+      height: 50%;
+      border-radius: 10px;
+      margin-right: 10px;
+      margin-left: 0px;
+      font-size: small;
     }
-
+    /* Non selected tools */
     .nonactive {
-        color: white;
-        background-color: #161b22;
+      color: white;
+      background-color: #161b22;
     }
-
+    /* Currently selected tool */
     .selected-tool {
-        transition: 0.5s;
-        background-color: white;
-        color: black;
-        font-weight: 900;
+      transition: 0.5s;
+      background-color: white;
+      color: black;
+      font-weight: 900;
+    }
+
+    /* Sidebar */
+    #sidebar {
+      height: 100%;
+      background-color: #161b22;
+      position: fixed;
+      top: 0px;
+      right: 0px;
+    }
+
+    /* Tools elements in sidebar */
+    #sidebar p, h1 {
+      color: white;
+      width: 100%;
+      margin: 10px;
+      padding: 5px;
+      font-family: "Copperplate";
+      border-radius: 2px;
+      user-select: none;
+      -moz-user-select: none;
+    }
+
+    #sidebar p {
+      font-size: 20px;
+    }
+
+    /* Tools elments in sidebar when hovered */
+    #sidebar p:hover {
+      transition: 0.2s;
+      color: black;
+      background-color: white;
+    }
+
+    /* Spacing between sidebar divs */
+    .inner-sidebar-div {
+      margin-bottom: 5%;
+    }
+    
+    /* Sidebar when closed */
+    .sidebar-hidden {
+      width: 0px;
+      transition: 0.5s;
+
+      border-style: none;
+      border-color: #161b22;
+      border-radius: none;
+    }
+
+    /* Sidebar when open */
+    .sidebar-visible {
+      transition: 0.5s;
+      width: 40%;
+
+      border-style: solid none solid solid;
+      border-color: white;
+      border-radius: 10px 0px 0px 10px;
+    }
+
+    /* Three line icon when sidebar is closed */
+    .icon-visible {
+      display: flex;
+      position: fixed;
+      top: 0px;
+      right: 50px;
+      font-size: 50px;
+      color: white;
+      height: 0px;
+      /* No highlighting */
+      user-select: none;
+      -moz-user-select: none;
+    }
+
+    /* Three lines icon when sidebar is open*/
+    .icon-hidden {
+      display: none;
+      transition: 0.2ms;
+    }
+
+    .circle {
+      margin: 10px;
+      display: inline-block;
+      height: 25px;
+      width: 25px;
+      border-radius: 50%;
+    }
+
+    .selected-color {
+      transition: 0.2s;
+      border-radius: 30%;
     }
 
 
-</style>
-<body>
+  </style>
+  <body>
     <div id="topcontainer" class="container">
-        <div id="tool-buttons" class="button-group">
-            <button id="pen" class="nonactive">Pen</button>
-            <button id="eraser" class="nonactive">Eraser</button>
-            <button id="piece" class="nonactive">Cube</button>
-            <button id="arrow" class="nonactive">Arrow</button>
-            <button id="clear" class="nonactive">Clear</button>
-        </div>
+      <div id="tool-buttons" class="button-group">
+        <button id="pen" class="nonactive">Pen</button>
+        <button id="eraser" class="nonactive">Eraser</button>
+        <button id="piece" class="nonactive">Cube</button>
+        <button id="arrow" class="nonactive">Arrow</button>
+      </div>
     </div>
     <canvas id="field-canvas"></canvas>
-    <img id="field-image" src="field23.png" style="display: none;">
-</body>
+    <img id="field-image" src="field23.png" style="display: none" />
+    <div id="sidebar" class="sidebar-hidden">
+      <div class="inner-sidebar-div">
+        <h1>Game Stage</h1>
+        <p id="auto">Autonomous</p>
+        <p id="teleop">Teleop</p>
+        <p id="endgame">Endgame</p>
+      </div>
+      <div class="inner-sidebar-div">
+        <h1>Tools</h1>
+        <p id="robot">Robot</p>
+        <p id="zone">Zone</p>
+        <p id="polygon">Polygon</p>
+      </div>
+      <div class="inner-sidebar-div">
+        <h1>Clear / Reset</h1>
+        <p id="clear">Clear</p>
+        <p id="reset">Reset</p>
+      </div>
+      <div id="color-selector">
+        <span class="circle" id="color-red" onclick="selectColor(event)" style="background-color: red;"></span>
+        <span class="circle" id="color-blue" onclick="selectColor(event)" style="background-color: blue;"></span>
+        <span class="circle" id="color-yellow" onclick="selectColor(event)" style="background-color: yellow;"></span>
+        <span class="circle" id="color-green" onclick="selectColor(event)" style="background-color: #56ea16;"></span>
+        <span class="circle selected-color" id="color-white" onclick="selectColor(event)" style="background-color: white;"></span>
+      </div>
+      
+    </div>
+    <div id="sidebar-icon" class="icon-visible">≡</div>
+  </body>
 </html>
