@@ -37,12 +37,25 @@ var selectedColorElement = document.getElementById("color-white");
 
 var currentMode = Mode.NONE;
 
+// Set first selected tool to pen tool
 var currentSelected = pen;
+
+const GameStage = {
+  AUTO: "auto",
+  TELEOP: "teleop",
+  ENDGAME: "endgame",
+};
+
+var currentGameStage = GameStage.AUTO;
+
+var autoImage = new Image();
+var teleopImage = new Image();
+var endgameImage = new Image();
 
 // resize canvas to current drawing area
 resize();
 
-// Button listeners
+// ---------- Event Listeners --------- \\
 pen.addEventListener("click", (event) => {
   selectTool(pen);
   currentMode = Mode.DRAW;
@@ -77,6 +90,25 @@ arrow.addEventListener("click", (event) => {
   isLineStart = true;
   isFirstClick = true;
   currentMode = Mode.ARROW;
+});
+
+// --------- Game Mode Selectors --------- \\
+document.getElementById("auto").addEventListener("click", (event) => {
+  saveCurrentStage();
+  currentGameStage = GameStage.AUTO;
+  ctx.drawImage(autoImage, 0, 0);
+});
+
+document.getElementById("teleop").addEventListener("click", (event) => {
+  saveCurrentStage();
+  currentGameStage = GameStage.TELEOP;
+  ctx.drawImage(teleopImage, 0, 0);
+});
+
+document.getElementById("endgame").addEventListener("click", (event) => {
+  saveCurrentStage();
+  currentGameStage = GameStage.ENDGAME;
+  ctx.drawImage(endgameImage, 0, 0);
 });
 
 // Canvas listeners
@@ -252,10 +284,10 @@ function handleClick(e) {
       return;
     }
 
-    if(currentMode == Mode.ARROW) {
-      if(isLineStart && e.type == "pointerdown") {
+    if (currentMode == Mode.ARROW) {
+      if (isLineStart && e.type == "pointerdown") {
         handleLine(e);
-      } else if(!isLineStart && e.type == "pointerup") {
+      } else if (!isLineStart && e.type == "pointerup") {
         handleLine(e);
         isLineStart = true;
       }
@@ -295,4 +327,21 @@ function selectColor(event) {
   selectedColorElement.classList.add("selected-color");
   selectedColor = event.currentTarget.style.backgroundColor;
   event.currentTarget.classList.add("selected-circle");
+}
+
+/* Saves current field state to current state */
+function saveCurrentStage() {
+  switch (currentGameStage) {
+    case "auto":
+      autoImage.src = canvas.toDataURL();
+      break;
+    case "teleop":
+      teleopImage.src = canvas.toDataURL();
+      break;
+    case "endgame":
+      endgameImage.src = canvas.toDataURL();
+      break;
+  }
+
+  clearField();
 }
