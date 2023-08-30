@@ -52,9 +52,6 @@ var autoImage = new Image();
 var teleopImage = new Image();
 var endgameImage = new Image();
 
-// resize canvas to current drawing area
-resize();
-
 // ---------- Event Listeners --------- \\
 pen.addEventListener("click", (event) => {
   selectTool(pen);
