@@ -77,7 +77,7 @@ piece.addEventListener("click", (event) => {
   // Change to other piece only if is selected
   if (currentMode == Mode.PIECE) {
     isCubes = !isCubes;
-    piece.innerText = isCubes ? "Cube" : "Cone";
+    piece.style.backgroundImage = isCubes ? "url(icons/crop_square_FILL0_wght400_GRAD0_opsz24.svg)" : "url(icons/traffic-cone.svg)";
   }
   currentMode = Mode.PIECE;
 });
@@ -108,6 +108,16 @@ document.getElementById("endgame").addEventListener("click", (event) => {
   ctx.drawImage(endgameImage, 0, 0);
 });
 
+document.getElementById("reset").addEventListener("click", (event) => {
+    if(confirm("Reset Game-Planner? This will clear all drawings, field elements, robots, and match data")) {
+      clearField();
+      currentGameStage = GameStage.AUTO;
+      autoImage = new Image();
+      teleopImage = new Image();
+      endgameImage = new Image();
+    }
+});
+
 // Canvas listeners
 
 canvas.addEventListener("pointermove", draw);
@@ -115,6 +125,7 @@ canvas.addEventListener("pointerup", handleClick);
 canvas.addEventListener("pointerdown", handleClick);
 
 window.addEventListener("resize", resize);
+window.addEventListener("load", resize);
 
 document
   .getElementById("sidebar-icon")

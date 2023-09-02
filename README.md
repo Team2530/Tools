@@ -38,11 +38,12 @@
 
 - The background comes from [Path Planner](https://github.com/mjansen4857/pathplanner) which is from their amazing path generation tool! Check it out!
 - You can use the [web version here](https://team2530.github.io/Game-Planner/) If the field doesn't show up right away, refresh the page, that seems to bring it up. May not be completely up to date as of now, when major changes occur, it will be updated.
+- Credits to [Material Icons](https://fonts.google.com/icons) where many of the icons came from
 
 ### Tools
 - Pen Tool: select to use a pen to draw on the field
 - Eraser Tool: select to erase drawings on the field
-- Piece Tool: Click to place cones/cubes on the field. When active, click again to switch which piece you're placing
+- Piece Tool (Rounded Square/Cone): Click to place cones/cubes on the field. When active, click again to switch which piece you're placing
 - Arrow Tool: Use to draw arrows. Click to start arrow, and release to draw endpoint where you released
 - Color circles: Select a color circle to use it for your pen and arrow color
 

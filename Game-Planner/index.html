@@ -28,12 +28,13 @@
       margin-top: 0px;
       padding: 0px;
     }
+
     /* Containter div for buttons */
     .container {
       position: fixed;
       margin-top: 0px;
-      margin-left: 0px;
-      width: 40%;
+      margin-left: 5px;
+      width: 25%;
     }
 
     /* Button group itself */
@@ -45,24 +46,27 @@
     }
     /* Buttons in group */
     .button-group button {
-      width: 15%;
-      height: 50%;
+      width: 40px;
+      height: 40px;
       border-radius: 10px;
-      margin-right: 10px;
+      margin-right: 5px;
       margin-left: 0px;
       font-size: small;
+      background-repeat: no-repeat;
+      background-size: cover;
     }
     /* Non selected tools */
     .nonactive {
-      color: white;
-      background-color: #161b22;
+      background-color: white;
+      filter: invert(100%) sepia(100%) saturate(0%) hue-rotate(128deg) brightness(106%) contrast(101%);
+      transition: 0.5s;
     }
     /* Currently selected tool */
     .selected-tool {
       transition: 0.5s;
       background-color: white;
-      color: black;
       font-weight: 900;
+      filter: invert(0%) sepia(30%) saturate(10%) hue-rotate(206deg) brightness(92%) contrast(102%);
     }
 
     /* Sidebar */
@@ -163,10 +167,10 @@
   <body>
     <div id="topcontainer" class="container">
       <div id="tool-buttons" class="button-group">
-        <button id="pen" class="nonactive">Pen</button>
-        <button id="eraser" class="nonactive">Eraser</button>
-        <button id="piece" class="nonactive">Cube</button>
-        <button id="arrow" class="nonactive">Arrow</button>
+        <button id="pen" class="nonactive" style="background-image: url(icons/draw_black_24dp.svg);"></button>
+        <button id="eraser" class="nonactive" style="background-image: url(icons/ink_eraser_FILL0_wght400_GRAD0_opsz24.svg);"></button>
+        <button id="piece" class="nonactive" style="background-image: url(icons/crop_square_FILL0_wght400_GRAD0_opsz24.svg);"></button>
+        <button id="arrow" class="nonactive" style="background-image: url(icons/moving_black_24dp.svg);"></button>
       </div>
     </div>
     <canvas id="field-canvas"></canvas>
@@ -185,7 +189,7 @@
         <p id="polygon">Polygon</p>
       </div>
       <div class="inner-sidebar-div">
-        <h1>Clear / Reset</h1>
+        <h1>Data</h1>
         <p id="clear">Clear</p>
         <p id="reset">Reset</p>
         <p id="save">Save</p>
