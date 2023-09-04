@@ -147,7 +147,7 @@ document.getElementById("match").addEventListener("click", (event) => {
   match.number = prompt("Enter Match Number", match.number);
   match.team1 = prompt("Enter Team 1 Number", match.team1);
   match.team2 = prompt("Enter Team 2 Number", match.team2);
-  match.team3 = prompt("Enter Team 2 Number", match.team3);
+  match.team3 = prompt("Enter Team 3 Number", match.team3);
 });
 
 // Canvas listeners
