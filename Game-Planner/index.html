@@ -183,6 +183,8 @@
         <button id="eraser" class="nonactive" style="background-image: url(icons/ink_eraser_FILL0_wght400_GRAD0_opsz24.svg);"></button>
         <button id="piece" class="nonactive" style="background-image: url(icons/crop_square_FILL0_wght400_GRAD0_opsz24.svg);"></button>
         <button id="arrow" class="nonactive" style="background-image: url(icons/moving_black_24dp.svg);"></button>
+        <button id="polygon" class="nonactive" style="background-image: url(icons/hexagon_FILL0_wght400_GRAD0_opsz24.svg);"></button>
+        <button id="robot" class="nonactive" style="background-image: url(icons/smart_toy_FILL0_wght400_GRAD0_opsz24.svg);"></button>
       </div>
     </div>
     <canvas id="field-canvas"></canvas>
@@ -202,18 +204,18 @@
       </div>
       <div class="inner-sidebar-div">
         <h1>Data</h1>
-        <p id="config">Match</p>
+        <p id="match">Match</p>
         <p id="save">Save</p>
         <p id="load">Load</p>
         <p id="clear">Clear</p>
         <p id="reset">Reset</p>
       </div>
       <div id="color-selector">
-        <span class="circle" id="color-red" onclick="selectColor(event)" style="background-color: red;"></span>
-        <span class="circle" id="color-blue" onclick="selectColor(event)" style="background-color: blue;"></span>
-        <span class="circle" id="color-yellow" onclick="selectColor(event)" style="background-color: yellow;"></span>
-        <span class="circle" id="color-green" onclick="selectColor(event)" style="background-color: #56ea16;"></span>
-        <span class="circle selected-color" id="color-white" onclick="selectColor(event)" style="background-color: white;"></span>
+        <span class="circle" id="color-red" onclick="selectColor(event)" style="background-color: rgb(255, 0, 0);"></span>
+        <span class="circle" id="color-blue" onclick="selectColor(event)" style="background-color: rgb(0, 0 , 255);"></span>
+        <span class="circle" id="color-yellow" onclick="selectColor(event)" style="background-color: rgb(255, 255, 0);"></span>
+        <span class="circle" id="color-green" onclick="selectColor(event)" style="background-color: rgb(86, 234, 22);"></span>
+        <span class="circle selected-color" id="color-white" onclick="selectColor(event)" style="background-color: rgb(255, 255, 255);"></span>
       </div>
       
     </div>

@@ -45,11 +45,13 @@
 - Eraser Tool: select to erase drawings on the field
 - Piece Tool (Rounded Square/Cone): Click to place cones/cubes on the field. When active, click again to switch which piece you're placing
 - Arrow Tool: Use to draw arrows. Click to start arrow, and release to draw endpoint where you released
+- Zone/Polygon Tool: Use to mark a 'zone' on the field. Select the tool, and points across the field where you would like to be marked
+and once finished, hit the button again to draw the zone
+
 - Color circles: Select a color circle to use it for your pen and arrow color
+- Use the Auto, Teleop, and Endgame selector to select the current drawing stage, you can use it for planning all stages of the match
+
 
 ### Features in development
-- Different modes for Auto, teleop, and endgame
 - Robot tool for placing robots on field
-- Zone tool for marking areas
-- Polygon tool for marking areas
-- Reset for resetting all fields (auto, teleop, and endgame)
+- Match Data

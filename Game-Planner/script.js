@@ -3,9 +3,12 @@ const ctx = canvas.getContext("2d");
 
 const pen = document.getElementById("pen");
 const eraser = document.getElementById("eraser");
-const clear = document.getElementById("clear");
 const piece = document.getElementById("piece");
 const arrow = document.getElementById("arrow");
+const polygon = document.getElementById("polygon");
+const robot = document.getElementById("robot");
+
+const clear = document.getElementById("clear");
 
 const sidebar = document.getElementById("sidebar");
 const sidebarIcon = document.getElementById("sidebar-icon");
@@ -23,16 +26,23 @@ var isFirstClick = true;
 
 var isCubes = true;
 
+// Holder for polygon points
+var polygonPoints = [];
+
 // Current mode
 const Mode = {
   DRAW: "draw",
   ERASE: "erase",
   PIECE: "piece",
   ARROW: "arrow",
+  POLYGON: "polygon",
+  ROBOT: "robot",
   NONE: "none",
 };
 
-var selectedColor = "white";
+var match = new Match("Number", "Team 1", "Team 2", "Team 3");
+
+var selectedColor = "rgb(255 ,255, 255)";
 var selectedColorElement = document.getElementById("color-white");
 
 var currentMode = Mode.NONE;
@@ -89,6 +99,20 @@ arrow.addEventListener("click", (event) => {
   currentMode = Mode.ARROW;
 });
 
+polygon.addEventListener("click", (event) => {
+  selectTool(polygon);
+  currentMode = Mode.POLYGON;
+
+  if(polygonPoints.length > 1) {
+    drawPolygon();
+  }
+});
+
+robot.addEventListener("click", (event) => {
+  selectTool(robot);
+  currentMode = Mode.ROBOT;
+});
+
 // --------- Game Mode Selectors --------- \\
 document.getElementById("auto").addEventListener("click", (event) => {
   saveCurrentStage();
@@ -115,7 +139,15 @@ document.getElementById("reset").addEventListener("click", (event) => {
       autoImage = new Image();
       teleopImage = new Image();
       endgameImage = new Image();
+      match = new Match("Number", "Team 1", "Team 2", "Team 3");
     }
+});
+
+document.getElementById("match").addEventListener("click", (event) => {
+  match.number = prompt("Enter Match Number", match.number);
+  match.team1 = prompt("Enter Team 1 Number", match.team1);
+  match.team2 = prompt("Enter Team 2 Number", match.team2);
+  match.team3 = prompt("Enter Team 2 Number", match.team3);
 });
 
 // Canvas listeners
@@ -147,17 +179,21 @@ function handleSideBar() {
   sidebarIsOpen = !sidebarIsOpen;
   // If sidebar opens, reset arrow/line status
   isLineStart = true;
-
   isFirstClick = true;
+  polygonPoints = [];
 }
 
 /**Select tool */
 function selectTool(id) {
   currentSelected.classList.remove("selected-tool");
   currentSelected.classList.add("nonactive");
-  currentSelected = id;
   id.classList.add("selected-tool");
   id.classList.remove("nonactive");
+  if(currentSelected != polygon) {
+    polygonPoints = [];
+  }
+
+  currentSelected = id;
 }
 
 /**On resize window, update canvas width and height */
@@ -284,7 +320,6 @@ function handlePiece(e) {
 }
 /**Handles a click event*/
 function handleClick(e) {
-  console.log(e.type);
   // On mouse down event and line
   if (!sidebarIsOpen) {
     if (currentMode == Mode.PIECE) {
@@ -299,6 +334,10 @@ function handleClick(e) {
         handleLine(e);
         isLineStart = true;
       }
+    }
+
+    if(currentMode == Mode.POLYGON && e.type == "pointerdown") {
+      polygonPoints.push(new Point(getPos(e).x, getPos(e).y));
     }
 
     if (e.type == "pointerdown" || e.type == "pointermove") {
@@ -352,4 +391,41 @@ function saveCurrentStage() {
   }
 
   clearField();
+}
+
+function drawPolygon() {
+  // use current color
+  ctx.globalCompositeOperation = "source-over";
+  ctx.fillStyle = "rgba(" + selectedColor.split("rgb(")[1].split(")")[0] + ", 0.2)";
+  ctx.strokeStyle = selectedColor;
+  ctx.lineWidth = 3;
+  ctx.lineCap = "round";
+  
+  ctx.beginPath();
+
+  ctx.moveTo(polygonPoints[0].x, polygonPoints[0].y);
+  for(i = 0; i < polygonPoints.length; i++) {
+    ctx.lineTo(polygonPoints[i].x, polygonPoints[i].y);
+  }
+
+  ctx.lineTo(polygonPoints[0].x, polygonPoints[0].y);
+  ctx.fill();
+  ctx.stroke();
+
+  ctx.closePath()
+
+  polygonPoints = [];
+}
+
+function Point(x, y) {
+  this.x = x;
+  this.y = y;
+}
+
+// Match info class
+function Match(number, team1, team2, team3) {
+  this.number = number;
+  this.team1 = team1;
+  this.team2 = team2;
+  this.team3 = team3;
 }
