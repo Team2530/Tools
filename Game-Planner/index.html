@@ -16,6 +16,7 @@
       overflow: hidden;
       background-color: #161b22;
       position: fixed;
+      overflow-y: hidden;
     }
     /* Canvas for drawing, which field is on */
     #field-canvas {
@@ -76,6 +77,8 @@
       position: fixed;
       top: 0px;
       right: 0px;
+      overflow-y: scroll;
+      overflow-x: hidden;
     }
 
     /* Tools elements in sidebar */
@@ -84,10 +87,18 @@
       width: 100%;
       margin: 10px;
       padding: 5px;
-      font-family: "Copperplate";
+      font-family: "Copperplate", 'Courier New', Courier, monospace;
       border-radius: 2px;
       user-select: none;
       -moz-user-select: none;
+    }
+
+    #sidebar p {
+      font-size: 20px;
+    }
+
+    #sidebar h1 {
+      font-size: 50px;
     }
 
     /* Tools elments in sidebar when hovered */
@@ -99,8 +110,7 @@
 
     /* Spacing between sidebar divs */
     .inner-sidebar-div {
-      margin-bottom: 2%;
-      height: 25%;
+      margin-bottom: 10px;
     }
     
     /* Sidebar when closed */
@@ -155,11 +165,12 @@
       height: 25px;
       width: 25px;
       border-radius: 50%;
+      transition: 0.5s;
     }
 
     .selected-color {
       transition: 0.5s;
-      border-radius: 30%;
+      border-radius: 20%;
     }
 
 
@@ -190,10 +201,11 @@
       </div>
       <div class="inner-sidebar-div">
         <h1>Data</h1>
-        <p id="clear">Clear</p>
-        <p id="reset">Reset</p>
+        <p id="config">Match</p>
         <p id="save">Save</p>
         <p id="load">Load</p>
+        <p id="clear">Clear</p>
+        <p id="reset">Reset</p>
       </div>
       <div id="color-selector">
         <span class="circle" id="color-red" onclick="selectColor(event)" style="background-color: red;"></span>
