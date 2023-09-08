@@ -29,6 +29,9 @@ var isCubes = true;
 // Holder for polygon points
 var polygonPoints = [];
 
+// Shapes on the canvas
+var canvasObjects = [];
+
 // Current mode
 const Mode = {
   DRAW: "draw",
@@ -309,14 +312,7 @@ function handlePiece(e) {
 
   ctx.fill(path);
 
-  // Fill in clear circle for middle of cones
-  if (!isCubes) {
-    ctx.fillStyle = "#000000";
-    ctx.globalCompositeOperation = "destination-out";
-    path = new Path2D();
-    path.ellipse(getPos(e).x, getPos(e).y, 5, 5, 0, 0, 2 * Math.PI);
-    ctx.fill(path);
-  }
+  canvasObjects.unshift({path: path, type: isCubes ? "cube" : "cone"});
 }
 /**Handles a click event*/
 function handleClick(e) {
@@ -344,6 +340,32 @@ function handleClick(e) {
       // account for offset
       pos.x = getPos(e).x;
       pos.y = getPos(e).y;
+    }
+
+    // Oneclick erase for cones, cubes and polygons
+    if(currentMode == Mode.ERASE && e.type == "pointerup") {
+      for(i = 0; i < canvasObjects.length; i++) {
+        if(ctx.isPointInPath(canvasObjects[i].path, getPos(e).x, getPos(e).y) && e.type == "pointerup") {
+          ctx.globalCompositeOperation = "destination-out";
+          ctx.fillStyle = "#000000";
+          ctx.fill(canvasObjects[i].path);
+          canvasObjects.splice(i, 1);
+        }
+      }
+
+      for(i = 0; i < canvasObjects.length; i++) {
+        ctx.globalCompositeOperation = "source-over";
+        if(canvasObjects[i].type == "polygon") {
+          ctx.fillStyle = canvasObjects[i].color;
+        } else if(canvasObjects[i].type == "cube") {
+          ctx.fillStyle = "#8d24d4";
+        } else if(canvasObjects[i].type == "cone") {
+          ctx.fillStyle = "#ffea03";
+
+        }
+
+        ctx.fill(canvasObjects[i].path);
+      }
     }
   } else {
     // Only fire sidebar on pointerdown event
@@ -394,29 +416,31 @@ function saveCurrentStage() {
 }
 
 function drawPolygon() {
-  // use current color
   ctx.globalCompositeOperation = "source-over";
+  // use current color, but make it opaque
   ctx.fillStyle = "rgba(" + selectedColor.split("rgb(")[1].split(")")[0] + ", 0.2)";
-  ctx.strokeStyle = selectedColor;
-  ctx.lineWidth = 3;
   ctx.lineCap = "round";
+
+  path = new Path2D();
+  path.lineWidth = 3;
   
   ctx.beginPath();
 
-  ctx.moveTo(polygonPoints[0].x, polygonPoints[0].y);
+  path.moveTo(polygonPoints[0].x, polygonPoints[0].y);
   for(i = 0; i < polygonPoints.length; i++) {
-    ctx.lineTo(polygonPoints[i].x, polygonPoints[i].y);
+    path.lineTo(polygonPoints[i].x, polygonPoints[i].y);
   }
 
-  ctx.lineTo(polygonPoints[0].x, polygonPoints[0].y);
-  ctx.fill();
-  ctx.stroke();
-
-  ctx.closePath()
+  path.lineTo(polygonPoints[0].x, polygonPoints[0].y);
+  ctx.fill(path);
+  ctx.closePath();
 
   polygonPoints = [];
+
+  canvasObjects.unshift({path: path, type: "polygon", color: "rgba(" + selectedColor.split("rgb(")[1].split(")")[0] + ", 0.2)"});
 }
 
+// Point class for polygon points
 function Point(x, y) {
   this.x = x;
   this.y = y;
