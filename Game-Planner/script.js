@@ -53,6 +53,8 @@ var currentMode = Mode.NONE;
 // Set first selected tool to pen tool
 var currentSelected = pen;
 
+var penPath = new Path2D();
+
 const GameStage = {
   AUTO: "auto",
   TELEOP: "teleop",
@@ -90,7 +92,9 @@ piece.addEventListener("click", (event) => {
   // Change to other piece only if is selected
   if (currentMode == Mode.PIECE) {
     isCubes = !isCubes;
-    piece.style.backgroundImage = isCubes ? "url(icons/crop_square_FILL0_wght400_GRAD0_opsz24.svg)" : "url(icons/traffic-cone.svg)";
+    piece.style.backgroundImage = isCubes
+      ? "url(icons/crop_square_FILL0_wght400_GRAD0_opsz24.svg)"
+      : "url(icons/traffic-cone.svg)";
   }
   currentMode = Mode.PIECE;
 });
@@ -106,7 +110,7 @@ polygon.addEventListener("click", (event) => {
   selectTool(polygon);
   currentMode = Mode.POLYGON;
 
-  if(polygonPoints.length > 1) {
+  if (polygonPoints.length > 1) {
     drawPolygon();
   }
 });
@@ -136,14 +140,18 @@ document.getElementById("endgame").addEventListener("click", (event) => {
 });
 
 document.getElementById("reset").addEventListener("click", (event) => {
-    if(confirm("Reset Game-Planner? This will clear all drawings, field elements, robots, and match data")) {
-      clearField();
-      currentGameStage = GameStage.AUTO;
-      autoImage = new Image();
-      teleopImage = new Image();
-      endgameImage = new Image();
-      match = new Match("Number", "Team 1", "Team 2", "Team 3");
-    }
+  if (
+    confirm(
+      "Reset Game-Planner? This will clear all drawings, field elements, robots, and match data"
+    )
+  ) {
+    clearField();
+    currentGameStage = GameStage.AUTO;
+    autoImage = new Image();
+    teleopImage = new Image();
+    endgameImage = new Image();
+    match = new Match("Number", "Team 1", "Team 2", "Team 3");
+  }
 });
 
 document.getElementById("match").addEventListener("click", (event) => {
@@ -192,7 +200,7 @@ function selectTool(id) {
   currentSelected.classList.add("nonactive");
   id.classList.add("selected-tool");
   id.classList.remove("nonactive");
-  if(currentSelected != polygon) {
+  if (currentSelected != polygon) {
     polygonPoints = [];
   }
 
@@ -224,19 +232,17 @@ function draw(e) {
     ctx.strokeStyle = selectedColor;
     ctx.lineWidth = 5;
   } else if (currentMode == Mode.ERASE) {
-    ctx.globalCompositeOperation = "destination-out";
-    ctx.lineWidth = 50;
+    redrawCanvasPaths(e);
+    return;
   } else {
     return;
   }
 
-  // Draw line / erase
-  ctx.beginPath();
   ctx.lineCap = "round";
-  ctx.moveTo(pos.x, pos.y);
+
   handleClick(e);
-  ctx.lineTo(pos.x, pos.y);
-  ctx.stroke();
+  penPath.lineTo(pos.x, pos.y);
+  ctx.stroke(penPath);
 }
 
 /**Draw lines */
@@ -248,6 +254,7 @@ function handleLine(e) {
     isLineStart = false;
     return;
   }
+
   // If new endpoint for line, draw the arrow
   if (currentLinePos.x != getPos(e).x && currentLinePos.y != getPos(e).y) {
     ctx.lineCap = "round";
@@ -255,6 +262,8 @@ function handleLine(e) {
     ctx.fillStyle = selectedColor;
     ctx.globalCompositeOperation = "source-over";
     ctx.lineWidth = 5;
+
+    path = new Path2D();
 
     endX = getPos(e).x;
     endY = getPos(e).y;
@@ -266,25 +275,45 @@ function handleLine(e) {
     endX -= ctx.lineWidth * Math.cos(angle);
 
     ctx.beginPath();
-    ctx.moveTo(currentLinePos.x, currentLinePos.y);
+    path.moveTo(currentLinePos.x, currentLinePos.y);
     // Tip of arrow at touch/cursor point
-    ctx.lineTo(endX, endY);
-    ctx.stroke();
+    path.lineTo(
+      endX - 2 * Math.cos(angle - Math.PI / 6),
+      endY - 2 * Math.sin(angle - Math.PI / 6)
+    );
+    path.moveTo(currentLinePos.x, currentLinePos.y);
+    path.lineTo(
+      endX - 2 * Math.cos(angle + Math.PI / 6),
+      endY - 2 * Math.sin(angle + Math.PI / 6)
+    );
+    path.lineTo(
+      endX - 2 * Math.cos(angle - Math.PI / 6),
+      endY - 2 * Math.sin(angle - Math.PI / 6)
+    );
+    
+    ctx.fill(path);
+    canvasObjects.unshift({ path: path, type: "arrow", color: selectedColor});
+
 
     ctx.beginPath();
-    ctx.lineTo(endX, endY);
-    // head liength of 10px and angle between of 30 deg
-    ctx.lineTo(
+    path.moveTo(endX, endY);
+    path.lineTo(endX, endY);
+    // head length of 5px and angle between of 30 deg
+    path.lineTo(
       endX - 10 * Math.cos(angle - Math.PI / 6),
       endY - 10 * Math.sin(angle - Math.PI / 6)
     );
-    ctx.lineTo(
+    path.lineTo(
       endX - 10 * Math.cos(angle + Math.PI / 6),
       endY - 10 * Math.sin(angle + Math.PI / 6)
     );
+
+    path.lineTo(endX, endY);
+    ctx.fill(path);
+    ctx.stroke(path);
     ctx.closePath();
-    ctx.stroke();
-    ctx.fill();
+
+    canvasObjects.unshift({ path: path, type: "arrow", color: selectedColor });
 
     currentLinePos.x = getPos(e).x;
     currentLinePos.y = getPos(e).y;
@@ -312,7 +341,7 @@ function handlePiece(e) {
 
   ctx.fill(path);
 
-  canvasObjects.unshift({path: path, type: isCubes ? "cube" : "cone"});
+  canvasObjects.unshift({ path: path, type: isCubes ? "cube" : "cone" });
 }
 /**Handles a click event*/
 function handleClick(e) {
@@ -332,7 +361,7 @@ function handleClick(e) {
       }
     }
 
-    if(currentMode == Mode.POLYGON && e.type == "pointerdown") {
+    if (currentMode == Mode.POLYGON && e.type == "pointerdown") {
       polygonPoints.push(new Point(getPos(e).x, getPos(e).y));
     }
 
@@ -342,30 +371,25 @@ function handleClick(e) {
       pos.y = getPos(e).y;
     }
 
-    // Oneclick erase for cones, cubes and polygons
-    if(currentMode == Mode.ERASE && e.type == "pointerup") {
-      for(i = 0; i < canvasObjects.length; i++) {
-        if(ctx.isPointInPath(canvasObjects[i].path, getPos(e).x, getPos(e).y) && e.type == "pointerup") {
-          ctx.globalCompositeOperation = "destination-out";
-          ctx.fillStyle = "#000000";
-          ctx.fill(canvasObjects[i].path);
-          canvasObjects.splice(i, 1);
-        }
-      }
+    if (e.type == "pointerdown" && currentMode == Mode.DRAW) {
+      ctx.beginPath();
+      penPath.moveTo(getPos(e).x, getPos(e).y);
+      ctx.strokeStyle = selectedColor;
+      penPath = new Path2D();
+    }
 
-      for(i = 0; i < canvasObjects.length; i++) {
-        ctx.globalCompositeOperation = "source-over";
-        if(canvasObjects[i].type == "polygon") {
-          ctx.fillStyle = canvasObjects[i].color;
-        } else if(canvasObjects[i].type == "cube") {
-          ctx.fillStyle = "#8d24d4";
-        } else if(canvasObjects[i].type == "cone") {
-          ctx.fillStyle = "#ffea03";
+    if (e.type == "pointerup" && currentMode == Mode.DRAW) {
+      ctx.stroke(penPath);
+      ctx.closePath();
+      canvasObjects.unshift({
+        path: penPath,
+        type: "pen",
+        color: selectedColor,
+      });
+    }
 
-        }
-
-        ctx.fill(canvasObjects[i].path);
-      }
+    if (currentMode == Mode.ERASE && e.type == "pointerup") {
+      redrawCanvasPaths(e);
     }
   } else {
     // Only fire sidebar on pointerdown event
@@ -418,16 +442,17 @@ function saveCurrentStage() {
 function drawPolygon() {
   ctx.globalCompositeOperation = "source-over";
   // use current color, but make it opaque
-  ctx.fillStyle = "rgba(" + selectedColor.split("rgb(")[1].split(")")[0] + ", 0.2)";
+  ctx.fillStyle =
+    "rgba(" + selectedColor.split("rgb(")[1].split(")")[0] + ", 0.2)";
   ctx.lineCap = "round";
 
   path = new Path2D();
   path.lineWidth = 3;
-  
+
   ctx.beginPath();
 
   path.moveTo(polygonPoints[0].x, polygonPoints[0].y);
-  for(i = 0; i < polygonPoints.length; i++) {
+  for (i = 0; i < polygonPoints.length; i++) {
     path.lineTo(polygonPoints[i].x, polygonPoints[i].y);
   }
 
@@ -437,7 +462,11 @@ function drawPolygon() {
 
   polygonPoints = [];
 
-  canvasObjects.unshift({path: path, type: "polygon", color: "rgba(" + selectedColor.split("rgb(")[1].split(")")[0] + ", 0.2)"});
+  canvasObjects.unshift({
+    path: path,
+    type: "polygon",
+    color: "rgba(" + selectedColor.split("rgb(")[1].split(")")[0] + ", 0.2)",
+  });
 }
 
 // Point class for polygon points
@@ -452,4 +481,45 @@ function Match(number, team1, team2, team3) {
   this.team1 = team1;
   this.team2 = team2;
   this.team3 = team3;
+}
+
+/* Redraws all paths on the canvas*/
+function redrawCanvasPaths(e) {
+  // Check for items on top first
+  for (i = 0; i < canvasObjects.length; i++) {
+    if (
+      ctx.isPointInPath(canvasObjects[i].path, getPos(e).x, getPos(e).y) &&
+      (e.type == "pointerup" || e.type == "pointermove")
+    ) {
+      ctx.globalCompositeOperation = "destination-out";
+      ctx.fillStyle = "#000000";
+      ctx.fill(canvasObjects[i].path);
+      canvasObjects.splice(i, 1);
+    }
+  }
+
+  clearField();
+  // Redraw backwards so older things are behind newer ones
+  for (i = canvasObjects.length - 1; i >= 0; i--) {
+    ctx.globalCompositeOperation = "source-over";
+    if (
+      canvasObjects[i].type == "polygon" ||
+      canvasObjects[i].type == "pen" ||
+      canvasObjects[i].type == "arrow"
+    ) {
+      ctx.fillStyle = canvasObjects[i].color;
+    } else if (canvasObjects[i].type == "cube") {
+      ctx.fillStyle = "#8d24d4";
+    } else if (canvasObjects[i].type == "cone") {
+      ctx.fillStyle = "#ffea03";
+    }
+
+    if (canvasObjects[i].type != "pen" && canvasObjects[i].type != "arrow") {
+      ctx.fill(canvasObjects[i].path);
+    } else {
+      ctx.lineWidth = 5;
+      ctx.strokeStyle = canvasObjects[i].color;
+      ctx.stroke(canvasObjects[i].path);
+    }
+  }
 }
