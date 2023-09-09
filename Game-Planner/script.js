@@ -63,9 +63,10 @@ const GameStage = {
 
 var currentGameStage = GameStage.AUTO;
 
-var autoImage = new Image();
-var teleopImage = new Image();
-var endgameImage = new Image();
+// Hold Stored objects on field
+var autoImage = [];
+var teleopImage = [];
+var endgameImage = [];
 
 // ---------- Event Listeners --------- \\
 pen.addEventListener("click", (event) => {
@@ -124,19 +125,25 @@ robot.addEventListener("click", (event) => {
 document.getElementById("auto").addEventListener("click", (event) => {
   saveCurrentStage();
   currentGameStage = GameStage.AUTO;
-  ctx.drawImage(autoImage, 0, 0);
+  
+  canvasObjects = autoImage;
+  redrawCanvasPaths(event);
 });
 
 document.getElementById("teleop").addEventListener("click", (event) => {
   saveCurrentStage();
   currentGameStage = GameStage.TELEOP;
-  ctx.drawImage(teleopImage, 0, 0);
+  
+  canvasObjects = teleopImage;
+  redrawCanvasPaths(event);
 });
 
 document.getElementById("endgame").addEventListener("click", (event) => {
   saveCurrentStage();
   currentGameStage = GameStage.ENDGAME;
-  ctx.drawImage(endgameImage, 0, 0);
+  
+  canvasObjects = endgameImage;
+  redrawCanvasPaths(event);
 });
 
 document.getElementById("reset").addEventListener("click", (event) => {
@@ -290,7 +297,7 @@ function handleLine(e) {
       endX - 2 * Math.cos(angle - Math.PI / 6),
       endY - 2 * Math.sin(angle - Math.PI / 6)
     );
-    
+
     ctx.fill(path);
     canvasObjects.unshift({ path: path, type: "arrow", color: selectedColor});
 
@@ -426,13 +433,13 @@ function selectColor(event) {
 function saveCurrentStage() {
   switch (currentGameStage) {
     case "auto":
-      autoImage.src = canvas.toDataURL();
+      autoImage = canvasObjects;
       break;
     case "teleop":
-      teleopImage.src = canvas.toDataURL();
+      teleopImage = canvasObjects
       break;
     case "endgame":
-      endgameImage.src = canvas.toDataURL();
+      endgameImage = canvasObjects;
       break;
   }
 
