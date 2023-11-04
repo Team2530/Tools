@@ -3,216 +3,90 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Game Planner</title>
-    <script defer src="./script.js"></script>
+    <title>Game-Planner</title>
+    <link defer rel="stylesheet" href="style.css" />
+    <script defer src="script.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <link rel="shortcut icon" href="/assets/greenswerverobot.svg" />
   </head>
-  <style>
-    html,
-    body {
-      width: 100%;
-      height: 100%;
-      padding: 0px;
-      margin: 0px;
-      overflow: hidden;
-      background-color: #161b22;
-      position: fixed;
-      overflow-y: hidden;
-    }
-    /* Canvas for drawing, which field is on */
-    #field-canvas {
-      background-color: #161b22;
-      /* Credits to PathPlanner, this is their field image
-        which looks great */
-      background-image: url("field23.png");
-      background-size: cover;
-      width: 100%;
-      margin-top: 0px;
-      padding: 0px;
-    }
-
-    /* Containter div for buttons */
-    .container {
-      position: fixed;
-      margin-top: 0px;
-      margin-left: 5px;
-      width: 25%;
-    }
-
-    /* Button group itself */
-    .button-group {
-      float: none;
-      margin: auto;
-      width: 100%;
-      height: 50px;
-    }
-    /* Buttons in group */
-    .button-group button {
-      width: 40px;
-      height: 40px;
-      border-radius: 10px;
-      margin-right: 5px;
-      margin-left: 0px;
-      font-size: small;
-      background-repeat: no-repeat;
-      background-size: cover;
-    }
-    /* Non selected tools */
-    .nonactive {
-      background-color: white;
-      filter: invert(100%) sepia(100%) saturate(0%) hue-rotate(128deg) brightness(106%) contrast(101%);
-      transition: 0.5s;
-    }
-    /* Currently selected tool */
-    .selected-tool {
-      transition: 0.5s;
-      background-color: white;
-      font-weight: 900;
-      filter: invert(0%) sepia(30%) saturate(10%) hue-rotate(206deg) brightness(92%) contrast(102%);
-    }
-
-    /* Sidebar */
-    #sidebar {
-      height: 100%;
-      background-color: #161b22;
-      position: fixed;
-      top: 0px;
-      right: 0px;
-      overflow-y: scroll;
-      overflow-x: hidden;
-    }
-
-    /* Tools elements in sidebar */
-    #sidebar p, h1 {
-      color: white;
-      width: 100%;
-      margin: 10px;
-      padding: 5px;
-      font-family: "Copperplate", 'Courier New', Courier, monospace;
-      border-radius: 2px;
-      user-select: none;
-      -moz-user-select: none;
-    }
-
-    #sidebar p {
-      margin-left: 30px;
-      font-size: 20px;
-    }
-
-    #sidebar h1 {
-      font-size: 30px;
-    }
-
-    /* Tools elments in sidebar when hovered */
-    #sidebar p:hover {
-      transition: 0.2s;
-      color: black;
-      background-color: white;
-    }
-
-    /* Spacing between sidebar divs */
-    .inner-sidebar-div {
-      margin-bottom: 10px;
-    }
-    
-    /* Sidebar when closed */
-    .sidebar-hidden {
-      width: 0px;
-      transition: 0.5s;
-
-      border-style: none;
-      border-color: #161b22;
-      border-radius: none;
-    }
-
-    /* Sidebar when open */
-    .sidebar-visible {
-      transition: 0.5s;
-      width: 40%;
-
-      border-style: solid none solid solid;
-      border-color: white;
-      border-radius: 10px 0px 0px 10px;
-    }
-
-    /* Three line icon when sidebar is closed */
-    .icon-visible {
-      display: flex;
-      position: fixed;
-      top: 0px;
-      right: 50px;
-      font-size: 50px;
-      color: white;
-      height: 0px;
-      /* No highlighting */
-      user-select: none;
-      -moz-user-select: none;
-    }
-
-    /* Three lines icon when sidebar is open*/
-    .icon-hidden {
-      display: none;
-      transition: 0.2ms;
-    }
-
-    #color-selector {
-      position: relative;
-      bottom: 0px;
-      left: 10px;
-    }
-
-    .circle {
-      margin: 10px;
-      display: inline-block;
-      height: 25px;
-      width: 25px;
-      border-radius: 50%;
-      transition: 0.5s;
-    }
-
-    .selected-color {
-      transition: 0.5s;
-      border-radius: 20%;
-    }
-
-
-  </style>
   <body>
-    <div id="topcontainer" class="container">
-      <div id="tool-buttons" class="button-group">
-        <button id="pen" class="nonactive" style="background-image: url(icons/draw_black_24dp.svg);"></button>
-        <button id="eraser" class="nonactive" style="background-image: url(icons/ink_eraser_FILL0_wght400_GRAD0_opsz24.svg);"></button>
-        <button id="piece" class="nonactive" style="background-image: url(icons/crop_square_FILL0_wght400_GRAD0_opsz24.svg);"></button>
-        <button id="arrow" class="nonactive" style="background-image: url(icons/moving_black_24dp.svg);"></button>
-        <button id="polygon" class="nonactive" style="background-image: url(icons/hexagon_FILL0_wght400_GRAD0_opsz24.svg);"></button>
-        <button id="robot" class="nonactive" style="background-image: url(icons/smart_toy_FILL0_wght400_GRAD0_opsz24.svg);"></button>
-      </div>
+    <img id="field-background" src="field23.png" alt="Field Background" />
+    <svg id="field-canvas">
+      <defs id="canvas-defs">
+        <marker
+          id="arrowhead"
+          markerWidth="5"
+          markerHeight="5"
+          refX="2"
+          refY="2"
+          orient="auto"
+        >
+          <polygon id="arrow-polygon" points="0 0, 5 2, 0 4" fill="#FFF" />
+        </marker>
+      </defs>
+    </svg>
+    <img
+      id="settings"
+      src="icons/gears.svg"
+      onclick="document.getElementById('sidebar').classList.replace('closed', 'open')"
+    />
+    <div id="tools" class="button-bar">
+      <button
+        class="non-active"
+        onclick="setMode(CanvasMode.DRAG)"
+        style="background-image: url('icons/select.svg')"
+      ></button>
+      <button
+        class="non-active"
+        onclick="setMode(CanvasMode.DELETE)"
+        style="background-image: url(icons/delete.svg)"
+      ></button>
+      <button
+        class="non-active"
+        onclick="setMode(CanvasMode.ARROW)"
+        style="background-image: url(icons/arrow.svg)"
+      ></button>
+      <button
+        id="piece-button"
+        class="non-active"
+        onclick="setMode(CanvasMode.PIECE)"
+        style="background-image: url('icons/cube.svg')"
+      ></button>
+      <button
+        class="non-active"
+        onclick="setMode(CanvasMode.POLYGON)"
+        style="background-image: url('icons/hexagon.svg')"
+      ></button>
+      <button
+        class="non-active"
+        onclick="setMode(CanvasMode.ROBOT)"
+        style="background-image: url('icons/roboticon.svg')"
+      ></button>
     </div>
-    <canvas id="field-canvas"></canvas>
-    <img id="field-image" src="field23.png" style="display: none" />
-    <div id="sidebar" class="sidebar-hidden">
-      <div class="inner-sidebar-div">
-        <h1>Game Stage</h1>
-        <p id="auto">Autonomous</p>
-        <p id="teleop">Teleop</p>
-        <p id="endgame">Endgame</p>
+
+    <div id="sidebar" class="closed">
+      <h1 style="margin: 5px;">Settings</h1>
+      <div>
+        <span>Team 1</span>
+        <input id="team1" type="text">
       </div>
-      <div class="inner-sidebar-div">
-        <h1>Data</h1>
-        <p id="match">Match</p>
-        <p id="save">Save</p>
-        <p id="load">Load</p>
-        <p id="clear">Clear</p>
-        <p id="reset">Reset</p>
+      <div>
+        <span>Team 2</span>
+        <input id="team2" type="text">
       </div>
-      <div id="color-selector">
-        <span class="circle" id="color-red" onclick="selectColor(event)" style="background-color: rgb(255, 0, 0);"></span>
-        <span class="circle" id="color-blue" onclick="selectColor(event)" style="background-color: rgb(0, 0 , 255);"></span>
-        <span class="circle" id="color-yellow" onclick="selectColor(event)" style="background-color: rgb(255, 255, 0);"></span>
-        <span class="circle" id="color-green" onclick="selectColor(event)" style="background-color: rgb(86, 234, 22);"></span>
-        <span class="circle selected-color" id="color-white" onclick="selectColor(event)" style="background-color: rgb(255, 255, 255);"></span>
+      <div>
+        <span>Team 3</span>
+        <input id="team3" type="text">
       </div>
-      
+
+      <div class="color-selector">
+        <span onclick="changeColor('#FFF')" style="background-color: white;"></span>
+        <span onclick="changeColor('#F00')" style="background-color: red;"></span>
+        <span onclick="changeColor('#00F')" style="background-color: blue;"></span>
+        <span onclick="changeColor('#FF0')" style="background-color: yellow;"></span>
+        <span onclick="changeColor('#56ea16')" style="background-color: green;"></span>
+      </div>
+      <span style="position: absolute; bottom: 5px; right: 10px; color: white">Version 1.2</span>
     </div>
-    <div id="sidebar-icon" class="icon-visible">≡</div>
   </body>
 </html>

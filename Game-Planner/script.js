@@ -1,422 +1,314 @@
-const canvas = document.getElementById("field-canvas");
-const ctx = canvas.getContext("2d");
+// SVG element placed on field
+const fieldCanvas = document.getElementById("field-canvas");
 
-const pen = document.getElementById("pen");
-const eraser = document.getElementById("eraser");
-const piece = document.getElementById("piece");
-const arrow = document.getElementById("arrow");
-const polygon = document.getElementById("polygon");
-const robot = document.getElementById("robot");
+// Field background itself
+const background = document.getElementById("field-background");
 
-const clear = document.getElementById("clear");
+// ---------- Constants ---------- \\
 
-const sidebar = document.getElementById("sidebar");
-const sidebarIcon = document.getElementById("sidebar-icon");
+const ROBOT_PIXEL_SIZE = 60;
+const GAMEPIECE_PIXEL_SIZE = 30;
 
-var sidebarIsOpen = false;
-var sidebarJustClosed = true;
+// ---------- Document (Enums) ---------- \\
 
-// Mouse position
-var pos = { x: 0, y: 0 };
-
-var currentLinePos = { x: 0, y: 0 };
-
-var isLineStart = true;
-var isFirstClick = true;
-
-var isCubes = true;
-
-// Holder for polygon points
-var polygonPoints = [];
-
-// Current mode
-const Mode = {
-  DRAW: "draw",
-  ERASE: "erase",
-  PIECE: "piece",
-  ARROW: "arrow",
-  POLYGON: "polygon",
-  ROBOT: "robot",
-  NONE: "none",
+const Alliance = {
+  BLUE: 0,
+  RED: 1,
 };
 
-var match = new Match("Number", "Team 1", "Team 2", "Team 3");
-
-var selectedColor = "rgb(255 ,255, 255)";
-var selectedColorElement = document.getElementById("color-white");
-
-var currentMode = Mode.NONE;
-
-// Set first selected tool to pen tool
-var currentSelected = pen;
-
-const GameStage = {
-  AUTO: "auto",
-  TELEOP: "teleop",
-  ENDGAME: "endgame",
+const PieceMode = {
+  CUBE: 0,
+  CONE: 1,
 };
 
-var currentGameStage = GameStage.AUTO;
+const CanvasMode = {
+  DELETE: 0,
+  PEN: 1,
+  DRAG: 2,
+  POLYGON: 3,
+  ROBOT: 4,
+  PIECE: 5,
+  ARROW: 6,
+};
 
-var autoImage = new Image();
-var teleopImage = new Image();
-var endgameImage = new Image();
+// ---------- Document Variables ---------- \\
+// States of the actual Webapp, operate to assist with program logic execution
+var allianceColor = Alliance.RED;
+var pieceMode = PieceMode.CUBE;
+var currentCanvasMode = CanvasMode.DRAG;
+var selectedColor = "#56ea16";
 
-// ---------- Event Listeners --------- \\
-pen.addEventListener("click", (event) => {
-  selectTool(pen);
-  currentMode = Mode.DRAW;
-});
+// Good height ratio canvas px / window height px (needs to be var so it can be slightly adjusted
+// on document load)
+var heightRatio = 1.0 / 635.0;
 
-eraser.addEventListener("click", (event) => {
-  selectTool(eraser);
-  currentMode = Mode.ERASE;
-});
+// currently selected svg element, for use with code to update position
+var selectedElement = null;
+// Offset from click point on element and output position
+var offset = null;
+// Current selected svg transform
+var transform = null;
 
-clear.addEventListener("click", (event) => {
-  clearField();
-  canvas.style.backgroundImage = "field23.png";
+// element of currently selected tool
+var selectedTool = null;
 
-  // Reset line status on clear
-  isLineStart = true;
-  isFirstClick = true;
-});
+// Current polygon being created, place where points will be put
+var currentPolygon = null;
 
-piece.addEventListener("click", (event) => {
-  selectTool(piece);
-  // Change to other piece only if is selected
-  if (currentMode == Mode.PIECE) {
-    isCubes = !isCubes;
-    piece.style.backgroundImage = isCubes ? "url(icons/crop_square_FILL0_wght400_GRAD0_opsz24.svg)" : "url(icons/traffic-cone.svg)";
-  }
-  currentMode = Mode.PIECE;
-});
+// Current arrow being created
+var currentArrow = null;
 
-arrow.addEventListener("click", (event) => {
-  selectTool(arrow);
-  isLineStart = true;
-  isFirstClick = true;
-  currentMode = Mode.ARROW;
-});
+// resize svg drawing element to size of background image
+window.onload = function () {
+  fieldCanvas.style.height = window.getComputedStyle(background, null).height;
+  fieldCanvas.style.width = window.getComputedStyle(background, null).width;
 
-polygon.addEventListener("click", (event) => {
-  selectTool(polygon);
-  currentMode = Mode.POLYGON;
+  // Multiply height ratio by actual width of field displayed on screen
+  heightRatio *= parseFloat(
+    window.getComputedStyle(background, null).height.split("px")[0]
+  );
+};
 
-  if(polygonPoints.length > 1) {
-    drawPolygon();
-  }
-});
+// Fired when click happens on field
+fieldCanvas.addEventListener("pointerdown", (event) => {
+  if(!document.getElementById("sidebar").classList.contains("open")) {
+    var position = getMousePosition(event);
 
-robot.addEventListener("click", (event) => {
-  selectTool(robot);
-  currentMode = Mode.ROBOT;
-});
-
-// --------- Game Mode Selectors --------- \\
-document.getElementById("auto").addEventListener("click", (event) => {
-  saveCurrentStage();
-  currentGameStage = GameStage.AUTO;
-  ctx.drawImage(autoImage, 0, 0);
-});
-
-document.getElementById("teleop").addEventListener("click", (event) => {
-  saveCurrentStage();
-  currentGameStage = GameStage.TELEOP;
-  ctx.drawImage(teleopImage, 0, 0);
-});
-
-document.getElementById("endgame").addEventListener("click", (event) => {
-  saveCurrentStage();
-  currentGameStage = GameStage.ENDGAME;
-  ctx.drawImage(endgameImage, 0, 0);
-});
-
-document.getElementById("reset").addEventListener("click", (event) => {
-    if(confirm("Reset Game-Planner? This will clear all drawings, field elements, robots, and match data")) {
-      clearField();
-      currentGameStage = GameStage.AUTO;
-      autoImage = new Image();
-      teleopImage = new Image();
-      endgameImage = new Image();
-      match = new Match("Number", "Team 1", "Team 2", "Team 3");
-    }
-});
-
-document.getElementById("match").addEventListener("click", (event) => {
-  match.number = prompt("Enter Match Number", match.number);
-  match.team1 = prompt("Enter Team 1 Number", match.team1);
-  match.team2 = prompt("Enter Team 2 Number", match.team2);
-  match.team3 = prompt("Enter Team 3 Number", match.team3);
-});
-
-// Canvas listeners
-
-canvas.addEventListener("pointermove", draw);
-canvas.addEventListener("pointerup", handleClick);
-canvas.addEventListener("pointerdown", handleClick);
-
-window.addEventListener("resize", resize);
-window.addEventListener("load", resize);
-
-document
-  .getElementById("sidebar-icon")
-  .addEventListener("pointerdown", handleSideBar);
-
-function handleSideBar() {
-  if (sidebarIsOpen) {
-    sidebar.classList.remove("sidebar-visible");
-    sidebar.classList.add("sidebar-hidden");
-    sidebarIcon.classList.remove("icon-hidden");
-    sidebarIcon.classList.add("icon-visible");
-  } else {
-    sidebar.classList.remove("sidebar-hidden");
-    sidebar.classList.add("sidebar-visible");
-    sidebarIcon.classList.remove("icon-visible");
-    sidebarIcon.classList.add("icon-hidden");
-  }
-
-  sidebarIsOpen = !sidebarIsOpen;
-  // If sidebar opens, reset arrow/line status
-  isLineStart = true;
-  isFirstClick = true;
-  polygonPoints = [];
-}
-
-/**Select tool */
-function selectTool(id) {
-  currentSelected.classList.remove("selected-tool");
-  currentSelected.classList.add("nonactive");
-  id.classList.add("selected-tool");
-  id.classList.remove("nonactive");
-  if(currentSelected != polygon) {
-    polygonPoints = [];
-  }
-
-  currentSelected = id;
-}
-
-/**On resize window, update canvas width and height */
-function resize() {
-  ctx.canvas.width = window.innerWidth;
-  var image = document.getElementById("field-image");
-  // Set width based on image original height and width, so that it should fit better on smaller screens
-  ctx.canvas.height =
-    (image.naturalHeight / image.naturalWidth) * window.innerWidth;
-}
-
-/**Draw on canvas */
-function draw(e) {
-  if (isFirstClick) {
-    handleClick(e);
-    isFirstClick = false;
-  }
-  // If finger/mouse isn't currently being pressed, return
-  if (e.buttons !== 1) {
-    return;
-  }
-
-  if (currentMode == Mode.DRAW) {
-    ctx.globalCompositeOperation = "source-over";
-    ctx.strokeStyle = selectedColor;
-    ctx.lineWidth = 5;
-  } else if (currentMode == Mode.ERASE) {
-    ctx.globalCompositeOperation = "destination-out";
-    ctx.lineWidth = 50;
-  } else {
-    return;
-  }
-
-  // Draw line / erase
-  ctx.beginPath();
-  ctx.lineCap = "round";
-  ctx.moveTo(pos.x, pos.y);
-  handleClick(e);
-  ctx.lineTo(pos.x, pos.y);
-  ctx.stroke();
-}
-
-/**Draw lines */
-function handleLine(e) {
-  // If startpoint for line, just save the position for later
-  if (isLineStart) {
-    currentLinePos.x = getPos(e).x;
-    currentLinePos.y = getPos(e).y;
-    isLineStart = false;
-    return;
-  }
-  // If new endpoint for line, draw the arrow
-  if (currentLinePos.x != getPos(e).x && currentLinePos.y != getPos(e).y) {
-    ctx.lineCap = "round";
-    ctx.strokeStyle = selectedColor;
-    ctx.fillStyle = selectedColor;
-    ctx.globalCompositeOperation = "source-over";
-    ctx.lineWidth = 5;
-
-    endX = getPos(e).x;
-    endY = getPos(e).y;
-    angle = Math.atan2(endY - currentLinePos.y, endX - currentLinePos.x);
-    head_angle = Math.PI / 6;
-
-    // Adjust for line thickness
-    endY -= ctx.lineWidth * Math.sin(angle);
-    endX -= ctx.lineWidth * Math.cos(angle);
-
-    ctx.beginPath();
-    ctx.moveTo(currentLinePos.x, currentLinePos.y);
-    // Tip of arrow at touch/cursor point
-    ctx.lineTo(endX, endY);
-    ctx.stroke();
-
-    ctx.beginPath();
-    ctx.lineTo(endX, endY);
-    // head liength of 10px and angle between of 30 deg
-    ctx.lineTo(
-      endX - 10 * Math.cos(angle - Math.PI / 6),
-      endY - 10 * Math.sin(angle - Math.PI / 6)
+  if (currentCanvasMode == CanvasMode.ROBOT) {
+    // place robot
+    addImage(
+      position.x,
+      position.y,
+      90,
+      allianceColor == Alliance.RED
+        ? "assets/redtankrobot.svg"
+        : "assets/blueswerverobot.svg",
+      ROBOT_PIXEL_SIZE
     );
-    ctx.lineTo(
-      endX - 10 * Math.cos(angle + Math.PI / 6),
-      endY - 10 * Math.sin(angle + Math.PI / 6)
+  } else if (currentCanvasMode == CanvasMode.PIECE) {
+    // place gamepiece
+    addImage(
+      position.x,
+      position.y,
+      0,
+      pieceMode == PieceMode.CONE ? "assets/cone.svg" : "assets/cube.svg",
+      GAMEPIECE_PIXEL_SIZE
     );
-    ctx.closePath();
-    ctx.stroke();
-    ctx.fill();
+  } else if (currentCanvasMode == CanvasMode.POLYGON) {
+    if (currentPolygon == null) {
+      currentPolygon = document.createElementNS(
+        "http://www.w3.org/2000/svg",
+        "polygon"
+      );
+      gsap.set(currentPolygon, {
+        attr: {
+          fill: selectedColor,
+          opacity: 0.4,
+          points: position.x + "," + position.y + " ",
+          stroke: selectedColor,
+        },
+      });
 
-    currentLinePos.x = getPos(e).x;
-    currentLinePos.y = getPos(e).y;
+      currentPolygon.setAttribute("stroke-width", "3px");
+      currentPolygon.setAttribute("stroke-linejoin", "round");
+
+
+      fieldCanvas.appendChild(currentPolygon);
+      makeDragable(currentPolygon);
+    } else {
+      // setup is defined, so all we need to do is add the points
+      var pts = currentPolygon.getAttribute("points");
+      currentPolygon.setAttribute(
+        "points",
+        pts + position.x + "," + position.y + " "
+      );
+    }
+  } else if (currentCanvasMode == CanvasMode.ARROW) {
+    if (currentArrow == null) {
+      currentArrow = document.createElementNS(
+        "http://www.w3.org/2000/svg",
+        "line"
+      );
+      gsap.set(currentArrow, {
+        attr: {
+          stroke: "#FFF",
+          x1: position.x,
+          y1: position.y,
+          x2: position.x,
+          y2: position.y,
+        },
+      });
+
+      currentArrow.setAttribute("stroke-width", 4);
+      currentArrow.setAttribute("marker-end", "url(#arrowhead)");
+      currentArrow.setAttribute("stroke-linecap", "round");
+
+      fieldCanvas.appendChild(currentArrow, fieldCanvas.firstChild);
+      makeDragable(currentArrow);
+    }
   }
-}
 
-function handlePiece(e) {
-  // If mouse button/finger isn't currently active, return
-  if (e.buttons !== 1 || isFirstClick) {
-    isFirstClick = false;
-    return;
-  }
-
-  ctx.globalCompositeOperation = "source-over";
-  let path = new Path2D();
-  if (isCubes) {
-    // Rounded purple rectangle for cubes
-    ctx.fillStyle = "#8d24d4";
-    path.roundRect(getPos(e).x - 15, getPos(e).y - 15, 30, 30, 10);
   } else {
-    // Rounded yellow rectangle for cones
-    ctx.fillStyle = "#ffea03";
-    path.roundRect(getPos(e).x - 15, getPos(e).y - 15, 30, 30, 3);
+    // Close sidebar
+    document.getElementById("sidebar").classList.replace("open", "closed");
   }
-
-  ctx.fill(path);
-}
-/**Handles a click event*/
-function handleClick(e) {
-  // On mouse down event and line
-  if (!sidebarIsOpen) {
-    if (currentMode == Mode.PIECE) {
-      handlePiece(e);
-      return;
-    }
-
-    if (currentMode == Mode.ARROW) {
-      if (isLineStart && e.type == "pointerdown") {
-        handleLine(e);
-      } else if (!isLineStart && e.type == "pointerup") {
-        handleLine(e);
-        isLineStart = true;
-      }
-    }
-
-    if(currentMode == Mode.POLYGON && e.type == "pointerdown") {
-      polygonPoints.push(new Point(getPos(e).x, getPos(e).y));
-    }
-
-    if (e.type == "pointerdown" || e.type == "pointermove") {
-      // account for offset
-      pos.x = getPos(e).x;
-      pos.y = getPos(e).y;
-    }
-  } else {
-    // Only fire sidebar on pointerdown event
-    if (e.type == "pointerdown") {
-      handleSideBar();
-    }
-  }
-}
-
-/**Get mouse/finger position on screen */
-function getPos(e) {
-  let touch =
-    (e.touches && e.touches[0]) ||
-    (e.pointerType && e.pointerType === "touch" && e);
-  let x = (touch || e).clientX - canvas.offsetLeft;
-  let y = (touch || e).clientY - canvas.offsetTop;
-  return { x, y };
-}
-
-/**Clear all drawings on field */
-function clearField() {
-  ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
-}
-
-function selectColor(event) {
-  selectedColorElement.classList.remove("selected-color");
-  selectedColorElement = document.getElementById(event.currentTarget.id);
-  selectedColorElement.classList.add("selected-color");
-  selectedColor = event.currentTarget.style.backgroundColor;
-  event.currentTarget.classList.add("selected-circle");
-}
-
-/* Saves current field state to current state */
-function saveCurrentStage() {
-  switch (currentGameStage) {
-    case "auto":
-      autoImage.src = canvas.toDataURL();
-      break;
-    case "teleop":
-      teleopImage.src = canvas.toDataURL();
-      break;
-    case "endgame":
-      endgameImage.src = canvas.toDataURL();
-      break;
-  }
-
-  clearField();
-}
-
-function drawPolygon() {
-  // use current color
-  ctx.globalCompositeOperation = "source-over";
-  ctx.fillStyle = "rgba(" + selectedColor.split("rgb(")[1].split(")")[0] + ", 0.2)";
-  ctx.strokeStyle = selectedColor;
-  ctx.lineWidth = 3;
-  ctx.lineCap = "round";
   
-  ctx.beginPath();
+});
 
-  ctx.moveTo(polygonPoints[0].x, polygonPoints[0].y);
-  for(i = 0; i < polygonPoints.length; i++) {
-    ctx.lineTo(polygonPoints[i].x, polygonPoints[i].y);
+fieldCanvas.addEventListener("pointermove", (event) => {
+  position = getMousePosition(event);
+  if (currentArrow != null) {
+    currentArrow.setAttribute("x2", position.x);
+    currentArrow.setAttribute("y2", position.y);
+  }
+});
+
+fieldCanvas.addEventListener("pointerup", (event) => {
+  position = getMousePosition(event);
+
+  if (currentCanvasMode == CanvasMode.ARROW) {
+    currentArrow = null;
+  }
+});
+
+/**
+ * Places an image on the field, centered at xpos/ypos with specified rotation
+ * @param {*} xpos Middle x position of image
+ * @param {*} ypos Middle y position of image
+ * @param {*} angle angle to rotate the image by
+ * @param {*} src Path to image file
+ * @param {*} pixelratio height ratio to place image on field as (~60 for robot and ~25 for gamepiece)
+ */
+function addImage(xpos, ypos, angle, src, pixelratio) {
+  var imageElement = document.createElementNS(
+    "http://www.w3.org/2000/svg",
+    "image"
+  );
+  // calculated pixel ratio for element
+  var calcRatio = pixelratio * heightRatio;
+
+  // Calculated center positions
+  var centerX = xpos - calcRatio / 2;
+  var centerY = ypos - calcRatio / 2;
+
+  // Set attrs to imageElement
+  gsap.set(imageElement, {
+    attr: {
+      href: src,
+      x: centerX,
+      y: centerY,
+      height: calcRatio,
+      width: calcRatio,
+    },
+  });
+
+  // Apply rotation transform around center
+  imageElement.setAttribute(
+    "transform",
+    "rotate(" + angle + "," + xpos + "," + ypos + ")"
+  );
+  fieldCanvas.appendChild(imageElement);
+  makeDragable(imageElement);
+}
+
+function setMode(mode) {
+  if (selectedTool != null) {
+    selectedTool.classList.replace("active", "non-active");
   }
 
-  ctx.lineTo(polygonPoints[0].x, polygonPoints[0].y);
-  ctx.fill();
-  ctx.stroke();
+  // event is deprecated, but I don't know how else to do this in an efficent way, so !TODO: Fix!
+  selectedTool = event.target;
+  selectedTool.classList.replace("non-active", "active");
 
-  ctx.closePath()
+  if (currentCanvasMode == CanvasMode.PIECE && mode == CanvasMode.PIECE) {
+    document.getElementById("piece-button").style.backgroundImage =
+      pieceMode == PieceMode.CONE
+        ? "url(icons/cube.svg)"
+        : "url(icons/traffic-cone.svg)";
+    pieceMode = (pieceMode + 1) % 2;
+  }
 
-  polygonPoints = [];
+  currentCanvasMode = mode;
+
+  // reset other basic tool needs
+  currentPolygon = null;
+  currentArrow = null;
 }
 
-function Point(x, y) {
-  this.x = x;
-  this.y = y;
+// Used to get click position relative to the main SVG
+function getMousePosition(evt) {
+  var CTM = fieldCanvas.getScreenCTM();
+  return {
+    x: (evt.clientX - CTM.e) / CTM.a,
+    y: (evt.clientY - CTM.f) / CTM.d,
+  };
 }
 
-// Match info class
-function Match(number, team1, team2, team3) {
-  this.number = number;
-  this.team1 = team1;
-  this.team2 = team2;
-  this.team3 = team3;
+function makeDragable(element) {
+  element.addEventListener("pointerdown", (event) => {
+    selectElement(event);
+  });
+
+  element.addEventListener("pointermove", (event) => {
+    dragElement(event);
+  });
+
+  element.addEventListener("pointerup", (event) => {
+    releaseElement(event);
+  });
+
+  element.addEventListener("pointerleave", (event) => {
+    releaseElement(event);
+  });
+}
+
+// Selects element based on pointer, sets currentSelected, offset, and translate so it can be moved
+// (Adapted from code here: https://www.petercollingridge.co.uk/tutorials/svg/interactive/dragging/)
+function selectElement(evt) {
+  if (currentCanvasMode == CanvasMode.DELETE) {
+    // if element is clicked on and is delete mode, delete it
+    fieldCanvas.removeChild(evt.target);
+  } else if (currentCanvasMode == CanvasMode.DRAG) {
+    selectedElement = evt.target;
+    offset = getMousePosition(evt);
+    // Get all the transforms currently on this element
+    var transforms = selectedElement.transform.baseVal;
+    // Ensure the first transform is a translate transform
+    if (
+      transforms.length === 0 ||
+      transforms.getItem(0).type !== SVGTransform.SVG_TRANSFORM_TRANSLATE
+    ) {
+      // Create an transform that translates by (0, 0)
+      var translate = fieldCanvas.createSVGTransform();
+      translate.setTranslate(0, 0);
+      // Add the translation to the front of the transforms list
+      selectedElement.transform.baseVal.insertItemBefore(translate, 0);
+    }
+    // Get initial translation amount
+    transform = transforms.getItem(0);
+    offset.x -= transform.matrix.e;
+    offset.y -= transform.matrix.f;
+  }
+}
+
+function dragElement(evt) {
+  if (currentCanvasMode == CanvasMode.DRAG) {
+    if (selectedElement) {
+      evt.preventDefault();
+      var coord = getMousePosition(evt);
+      transform.setTranslate(coord.x - offset.x, coord.y - offset.y);
+    }
+
+    // If we pass over element during drag delete (and mouse button is held), remove the element
+  } else if (currentCanvasMode == CanvasMode.DELETE && evt.buttons != 0) {
+    fieldCanvas.removeChild(evt.target);
+  }
+}
+
+function releaseElement(evt) {
+  selectedElement = null;
+}
+
+function changeColor(newColor) {
+  selectedColor = newColor;
 }
