@@ -41,17 +41,15 @@
 - Credits to [Material Icons](https://fonts.google.com/icons) where many of the icons came from
 
 ### Tools
-- Pen Tool: select to use a pen to draw on the field
-- Eraser Tool: select to erase drawings on the field
+- Cursor Tool: Use to drag elements around on the field
+- Eraser Tool: select to erase objects on the field
 - Piece Tool (Rounded Square/Cone): Click to place cones/cubes on the field. When active, click again to switch which piece you're placing
-- Arrow Tool: Use to draw arrows. Click to start arrow, and release to draw endpoint where you released
+- Arrow Tool: Use to draw arrows. Click to start arrow, and release to finish
 - Zone/Polygon Tool: Use to mark a 'zone' on the field. Select the tool, and points across the field where you would like to be marked
-and once finished, hit the button again to draw the zone
+and once finished, hit the button again to finish drawing
 
 - Color circles: Select a color circle to use it for your pen and arrow color
-- Use the Auto, Teleop, and Endgame selector to select the current drawing stage, you can use it for planning all stages of the match
-
 
 ### Features in development
-- Robot tool for placing robots on field
 - Match Data
+- Pen tool? (Will see if necessary)
