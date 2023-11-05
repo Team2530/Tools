@@ -80,7 +80,16 @@ head, body {
     width: 30px;
     background-size: cover;
     display: inline-block;
-    border-radius: 10px;
+    margin-right: 5px;
+    transition: 0.25s;
+}
+
+.selected-color {
+    border-radius: 5px;
+}
+
+.non-selected-color {
+    border-radius: 15px;
 }
 
 .closed {

@@ -21,7 +21,7 @@
           refY="2"
           orient="auto"
         >
-          <polygon id="arrow-polygon" points="0 0, 5 2, 0 4" fill="#FFF" />
+          <polygon id="arrow-polygon" points="0 0, 5 2, 0 4" fill="context-fill" />
         </marker>
       </defs>
     </svg>
@@ -41,6 +41,9 @@
         onclick="setMode(CanvasMode.DELETE)"
         style="background-image: url(icons/delete.svg)"
       ></button>
+      <button class="non-active"
+      onclick="setMode(CanvasMode.PEN)"
+      style="background-image: url(icons/pen.svg)"></button>
       <button
         class="non-active"
         onclick="setMode(CanvasMode.ARROW)"
@@ -80,13 +83,14 @@
       </div>
 
       <div class="color-selector">
-        <span onclick="changeColor('#FFF')" style="background-color: white;"></span>
-        <span onclick="changeColor('#F00')" style="background-color: red;"></span>
-        <span onclick="changeColor('#00F')" style="background-color: blue;"></span>
-        <span onclick="changeColor('#FF0')" style="background-color: yellow;"></span>
-        <span onclick="changeColor('#56ea16')" style="background-color: green;"></span>
+        <span class="selected-color" id="white-color-selector" onclick="changeColor('#FFF')" style="background-color: white;"></span>
+        <span class="non-selected-color" onclick="changeColor('#F00')" style="background-color: red;"></span>
+        <span class="non-selected-color" onclick="changeColor('#00F')" style="background-color: blue;"></span>
+        <span class="non-selected-color" onclick="changeColor('#FF0')" style="background-color: yellow;"></span>
+        <span class="non-selected-color" onclick="changeColor('#ffa500')" style="background-color: #ffa500;"></span>
+        <span class="non-selected-color" onclick="changeColor('#56ea16')" style="background-color: #56ea16;"></span>
       </div>
-      <span style="position: absolute; bottom: 5px; right: 10px; color: white">Version 1.2</span>
+      <span style="position: absolute; bottom: 5px; right: 10px; color: white">v1.2.1</span>
     </div>
   </body>
 </html>

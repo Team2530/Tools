@@ -36,7 +36,7 @@ const CanvasMode = {
 var allianceColor = Alliance.RED;
 var pieceMode = PieceMode.CUBE;
 var currentCanvasMode = CanvasMode.DRAG;
-var selectedColor = "#56ea16";
+var selectedColor = "white";
 
 // Good height ratio canvas px / window height px (needs to be var so it can be slightly adjusted
 // on document load)
@@ -52,11 +52,17 @@ var transform = null;
 // element of currently selected tool
 var selectedTool = null;
 
+// element of currently selected color
+var selectedColorElement = document.getElementById("white-color-selector");
+
 // Current polygon being created, place where points will be put
 var currentPolygon = null;
 
 // Current arrow being created
 var currentArrow = null;
+
+// Current Pen Path
+var currentPenPath = null;
 
 // resize svg drawing element to size of background image
 window.onload = function () {
@@ -82,7 +88,7 @@ fieldCanvas.addEventListener("pointerdown", (event) => {
       90,
       allianceColor == Alliance.RED
         ? "assets/redtankrobot.svg"
-        : "assets/blueswerverobot.svg",
+        : "assets/bluetankrobot.svg",
       ROBOT_PIXEL_SIZE
     );
   } else if (currentCanvasMode == CanvasMode.PIECE) {
@@ -112,7 +118,6 @@ fieldCanvas.addEventListener("pointerdown", (event) => {
       currentPolygon.setAttribute("stroke-width", "3px");
       currentPolygon.setAttribute("stroke-linejoin", "round");
 
-
       fieldCanvas.appendChild(currentPolygon);
       makeDragable(currentPolygon);
     } else {
@@ -131,7 +136,8 @@ fieldCanvas.addEventListener("pointerdown", (event) => {
       );
       gsap.set(currentArrow, {
         attr: {
-          stroke: "#FFF",
+          stroke: selectedColor,
+          fill: selectedColor,
           x1: position.x,
           y1: position.y,
           x2: position.x,
@@ -146,6 +152,23 @@ fieldCanvas.addEventListener("pointerdown", (event) => {
       fieldCanvas.appendChild(currentArrow, fieldCanvas.firstChild);
       makeDragable(currentArrow);
     }
+  } else if(currentCanvasMode == CanvasMode.PEN) {
+    currentPenPath = document.createElementNS(
+      "http://www.w3.org/2000/svg",
+      "polyline"
+    );
+    
+    gsap.set(currentPenPath, {
+      attr: {
+        stroke: selectedColor,
+        fill: "none"
+      },
+    });
+
+    currentPenPath.setAttribute("points", + position.x + "," + position.y + " ");
+    currentPenPath.setAttribute("stroke-width", 4);
+    fieldCanvas.appendChild(currentPenPath);
+    makeDragable(currentPenPath);
   }
 
   } else {
@@ -155,20 +178,35 @@ fieldCanvas.addEventListener("pointerdown", (event) => {
   
 });
 
+// Pointer move related events on the field
 fieldCanvas.addEventListener("pointermove", (event) => {
   position = getMousePosition(event);
-  if (currentArrow != null) {
-    currentArrow.setAttribute("x2", position.x);
-    currentArrow.setAttribute("y2", position.y);
+  if(currentCanvasMode == CanvasMode.ARROW) {
+    if (currentArrow != null) {
+      currentArrow.setAttribute("x2", position.x);
+      currentArrow.setAttribute("y2", position.y);
+    }
+  } else if (currentCanvasMode == CanvasMode.DRAG) {
+    if (selectedElement) {
+      event.preventDefault();
+      transform.setTranslate(position.x - offset.x, position.y - offset.y);
+    }
+
+    // If we pass over element during drag delete (and mouse button is held), remove the element
+  } else if(currentCanvasMode == CanvasMode.PEN) {
+    if(currentPenPath) {
+      currentPenPath.setAttribute("points", currentPenPath.getAttribute("points") + position.x + " " + position.y + " ");
+    }
+  } else if (currentCanvasMode == CanvasMode.DELETE && event.buttons != 0) {
+    fieldCanvas.removeChild(event.target);
   }
 });
 
 fieldCanvas.addEventListener("pointerup", (event) => {
   position = getMousePosition(event);
 
-  if (currentCanvasMode == CanvasMode.ARROW) {
-    currentArrow = null;
-  }
+  currentArrow = null;
+  currentPenPath = null;
 });
 
 /**
@@ -225,6 +263,7 @@ function setMode(mode) {
       pieceMode == PieceMode.CONE
         ? "url(icons/cube.svg)"
         : "url(icons/traffic-cone.svg)";
+    // Invert to other piece number, (0 or 1)
     pieceMode = (pieceMode + 1) % 2;
   }
 
@@ -244,20 +283,13 @@ function getMousePosition(evt) {
   };
 }
 
+// Set pointer(down/up) events for dragable items
 function makeDragable(element) {
   element.addEventListener("pointerdown", (event) => {
     selectElement(event);
   });
 
-  element.addEventListener("pointermove", (event) => {
-    dragElement(event);
-  });
-
   element.addEventListener("pointerup", (event) => {
-    releaseElement(event);
-  });
-
-  element.addEventListener("pointerleave", (event) => {
     releaseElement(event);
   });
 }
@@ -291,24 +323,14 @@ function selectElement(evt) {
   }
 }
 
-function dragElement(evt) {
-  if (currentCanvasMode == CanvasMode.DRAG) {
-    if (selectedElement) {
-      evt.preventDefault();
-      var coord = getMousePosition(evt);
-      transform.setTranslate(coord.x - offset.x, coord.y - offset.y);
-    }
-
-    // If we pass over element during drag delete (and mouse button is held), remove the element
-  } else if (currentCanvasMode == CanvasMode.DELETE && evt.buttons != 0) {
-    fieldCanvas.removeChild(evt.target);
-  }
-}
-
 function releaseElement(evt) {
   selectedElement = null;
 }
 
 function changeColor(newColor) {
+  selectedColorElement.classList.replace("selected-color", "non-selected-color");
+
+  selectedColorElement = event.target;
+  selectedColorElement.classList.replace("non-selected-color", "selected-color");
   selectedColor = newColor;
 }
