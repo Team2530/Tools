@@ -37,12 +37,13 @@
 [Game planner](./Game-Planner) is designed to be a tool for using when planning strategy before a match. You can download the source and run it locally, or use the link below to access it remotely.
 
 - The background comes from [Path Planner](https://github.com/mjansen4857/pathplanner) which is from their amazing path generation tool! Check it out!
-- You can use the [web version here](https://team2530.github.io/Game-Planner/) If the field doesn't show up right away, refresh the page, that seems to bring it up. May not be completely up to date as of now, when major changes occur, it will be updated.
+- You can use the [web version here](https://team2530.github.io/Game-Planner/)
 - Credits to [Material Icons](https://fonts.google.com/icons) where many of the icons came from
 
 ### Tools
 - Cursor Tool: Use to drag elements around on the field
 - Eraser Tool: select to erase objects on the field
+- Pen Tool: Select to draw on the field
 - Piece Tool (Rounded Square/Cone): Click to place cones/cubes on the field. When active, click again to switch which piece you're placing
 - Arrow Tool: Use to draw arrows. Click to start arrow, and release to finish
 - Zone/Polygon Tool: Use to mark a 'zone' on the field. Select the tool, and points across the field where you would like to be marked
@@ -50,6 +51,7 @@ and once finished, hit the button again to finish drawing
 
 - Color circles: Select a color circle to use it for your pen and arrow color
 
-### Features in development
+### Features in development/Bug Fixes
 - Match Data
-- Pen tool? (Will see if necessary)
+- Team numbers on robots
+- Fix Arrowheads on mobile not using correct color
