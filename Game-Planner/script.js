@@ -109,7 +109,6 @@ fieldCanvas.addEventListener("pointerdown", (event) => {
       gsap.set(currentPolygon, {
         attr: {
           fill: selectedColor,
-          opacity: 0.4,
           points: position.x + "," + position.y + " ",
           stroke: selectedColor,
         },
@@ -117,6 +116,7 @@ fieldCanvas.addEventListener("pointerdown", (event) => {
 
       currentPolygon.setAttribute("stroke-width", "3px");
       currentPolygon.setAttribute("stroke-linejoin", "round");
+      currentPolygon.setAttribute("fill-opacity", 0.4);
 
       fieldCanvas.appendChild(currentPolygon);
       makeDragable(currentPolygon);
@@ -174,6 +174,9 @@ fieldCanvas.addEventListener("pointerdown", (event) => {
   } else {
     // Close sidebar
     document.getElementById("sidebar").classList.replace("open", "closed");
+
+    // End last polygon if hasn't been already
+    currentPolygon = null; 
   }
   
 });
