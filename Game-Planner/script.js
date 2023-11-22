@@ -33,7 +33,7 @@ const CanvasMode = {
 
 // ---------- Document Variables ---------- \\
 // States of the actual Webapp, operate to assist with program logic execution
-var allianceColor = Alliance.RED;
+var allianceColor = Alliance.BLUE;
 var pieceMode = PieceMode.CUBE;
 var currentCanvasMode = CanvasMode.DRAG;
 var selectedColor = "white";
@@ -166,6 +166,7 @@ fieldCanvas.addEventListener("pointerdown", (event) => {
     });
 
     currentPenPath.setAttribute("points", + position.x + "," + position.y + " ");
+    currentPenPath.setAttribute("stroke-linecap", "round");
     currentPenPath.setAttribute("stroke-width", 4);
     fieldCanvas.appendChild(currentPenPath);
     makeDragable(currentPenPath);
@@ -253,13 +254,21 @@ function addImage(xpos, ypos, angle, src, pixelratio) {
 }
 
 function setMode(mode) {
+  // addstr helps with the extra different "buttons" that use this (ones with color)
+  // Some need a different class, so we have to accout for that here
+
+  addstr = (currentCanvasMode == CanvasMode.ROBOT) ? "other-" : "";
+  
   if (selectedTool != null) {
-    selectedTool.classList.replace("active", "non-active");
+    selectedTool.classList.replace(addstr + "active", addstr + "non-active");
   }
 
   // event is deprecated, but I don't know how else to do this in an efficent way, so !TODO: Fix!
   selectedTool = event.target;
-  selectedTool.classList.replace("non-active", "active");
+
+  addstr = (mode == CanvasMode.ROBOT) ? "other-" : "";
+
+  selectedTool.classList.replace(addstr + "non-active", addstr + "active");
 
   if (currentCanvasMode == CanvasMode.PIECE && mode == CanvasMode.PIECE) {
     document.getElementById("piece-button").style.backgroundImage =
@@ -268,6 +277,15 @@ function setMode(mode) {
         : "url(icons/traffic-cone.svg)";
     // Invert to other piece number, (0 or 1)
     pieceMode = (pieceMode + 1) % 2;
+  }
+
+  if (currentCanvasMode == CanvasMode.ROBOT && mode == CanvasMode.ROBOT) {
+    document.getElementById("robot-button").style.backgroundImage =
+      allianceColor == Alliance.RED
+        ? "url(icons/blueroboticon.svg)"
+        : "url(icons/redroboticon.svg)";
+    // Invert to other alliance color number, (0 or 1)
+    allianceColor = (allianceColor + 1) % 2;
   }
 
   currentCanvasMode = mode;

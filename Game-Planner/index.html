@@ -61,26 +61,29 @@
         style="background-image: url('icons/hexagon.svg')"
       ></button>
       <button
-        class="non-active"
+      id="robot-button"
+        class="other-non-active"
         onclick="setMode(CanvasMode.ROBOT)"
-        style="background-image: url('icons/roboticon.svg')"
+        style="background-image: url('icons/blueroboticon.svg')"
       ></button>
     </div>
 
     <div id="sidebar" class="closed">
-      <h1 style="margin: 5px;">Settings</h1>
-      <div>
+      <h1 style="margin: 10px;">Settings</h1>
+      <div class="teams">
         <span>Team 1</span>
         <input id="team1" type="text">
       </div>
-      <div>
+      <div class="teams">
         <span>Team 2</span>
         <input id="team2" type="text">
       </div>
-      <div>
+      <div class="teams">
         <span>Team 3</span>
         <input id="team3" type="text">
       </div>
+
+      <hr style="width: 90%; margin: auto;">
 
       <div class="color-selector">
         <span class="selected-color" id="white-color-selector" onclick="changeColor('#FFF')" style="background-color: white;"></span>

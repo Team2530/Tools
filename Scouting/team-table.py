@@ -133,7 +133,7 @@ if __name__ == "__main__":
     top_teams.append('2530')
 
     # Prints selected keys in green (Others are in white)
-    print_selected_keys() 
+    print_selected_keys()
 
     # Sorts table by given key
     top_teams = sort_table_by("OPR")
