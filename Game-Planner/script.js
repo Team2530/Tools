@@ -383,6 +383,10 @@ function selectStage() {
 
   // display other stage on field canvas
   fieldCanvas.innerHTML = document.getElementById(currentGameStage).innerHTML;
+
+  fieldCanvas.childNodes.forEach(node => {
+    makeDragable(node);
+  });
 }
 
 function clearField() {
