@@ -9,6 +9,10 @@ const background = document.getElementById("field-background");
 const ROBOT_PIXEL_SIZE = 60;
 const GAMEPIECE_PIXEL_SIZE = 30;
 
+// HTML for the arrowhead marker, which needs to be carried over through a clear/reset
+const MARKER_SVG = " <marker id=\"arrowhead\" markerWidth=\"5\" markerHeight=\"5\" refX=\"2\" refY=\"2\" orient=\"auto\">\n" +
+    "<polygon id=\"arrow-polygon\" points=\"0 0, 5 2, 0 4\" fill=\"context-fill\" />\n</marker>"
+
 // ---------- Document (Enums) ---------- \\
 
 const Alliance = {
@@ -31,12 +35,19 @@ const CanvasMode = {
   ARROW: 6,
 };
 
+const GameStage = {
+  AUTO: "auto",
+  TELEOP: "teleop",
+  ENDGAME: "endgame"
+}
+
 // ---------- Document Variables ---------- \\
 // States of the actual Webapp, operate to assist with program logic execution
 var allianceColor = Alliance.BLUE;
 var pieceMode = PieceMode.CUBE;
 var currentCanvasMode = CanvasMode.DRAG;
 var selectedColor = "white";
+var currentGameStage = GameStage.AUTO;
 
 // Good height ratio canvas px / window height px (needs to be var so it can be slightly adjusted
 // on document load)
@@ -54,6 +65,9 @@ var selectedTool = null;
 
 // element of currently selected color
 var selectedColorElement = document.getElementById("white-color-selector");
+
+// button element for current selected game stage
+var selectedGameStage = document.getElementById("auto-button");
 
 // Current polygon being created, place where points will be put
 var currentPolygon = null;
@@ -354,4 +368,33 @@ function changeColor(newColor) {
   selectedColorElement = event.target;
   selectedColorElement.classList.replace("non-selected-color", "selected-color");
   selectedColor = newColor;
+}
+
+function selectStage() {
+  selectedGameStage.classList.toggle("selected-stage");
+  event.target.classList.toggle("selected-stage");
+
+  // Store current svg to whichever stage it belongs to
+  document.getElementById(currentGameStage).innerHTML = fieldCanvas.innerHTML;
+
+  // update current stage
+  selectedGameStage = event.target;
+  currentGameStage = event.target.id.split("-")[0];
+
+  // display other stage on field canvas
+  fieldCanvas.innerHTML = document.getElementById(currentGameStage).innerHTML;
+}
+
+function clearField() {
+  document.getElementById(currentGameStage).innerHTML = MARKER_SVG;
+  fieldCanvas.innerHTML = MARKER_SVG;
+}
+
+function resetPlanner() {
+  if(confirm("This will reset Game Planner, would you like to continue?")) {
+    document.getElementById(GameStage.AUTO).innerHTML = MARKER_SVG;
+    document.getElementById(GameStage.TELEOP).innerHTML = MARKER_SVG;
+    document.getElementById(GameStage.ENDGAME).innerHTML = MARKER_SVG;
+    fieldCanvas.innerHTML = MARKER_SVG;
+  }
 }

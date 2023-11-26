@@ -76,7 +76,7 @@ head, body {
     transition: 0.5s;
 }
 
-#sidebar :not( :last-child) {
+#sidebar {
     color: white;
     margin: 0;
 }
@@ -131,4 +131,31 @@ head, body {
     font-size: larger;
     font-weight: bold;
     padding: 15px;
+}
+
+.stages button {
+    color: white;
+    width: 32%;
+    margin: auto;
+    background-color: black;
+    border: white 3px solid;
+    transition: 0.5s;
+    
+}
+
+.selected-stage {
+    border-width: 5px !important;
+    font-weight: 900;
+    transition: 0.5s;
+}
+
+.options button {
+    background-color: black;
+    color: white;
+    width: 49%;
+    margin: auto;
+    padding: 3px;
+    display: inline-block;
+    border: solid white 2px;
+    font-weight: 600;
 }
