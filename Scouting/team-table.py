@@ -111,7 +111,11 @@ def build_table():
 if __name__ == "__main__":
     # Event code which consists of year and an event code
     # Comes right after www.theblue.../event/
-    event_code = "2023mndu"
+    import sys
+    if len(sys.argv) > 1:
+        event_code = sys.argv[1]
+    else:
+        event_code = "2023mndu"
 
     # Fetch TBA HTML and JSON data
     all_data = getTeams(event_code)
