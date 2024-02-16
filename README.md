@@ -34,10 +34,12 @@
 
 ## Game-Planner
 
-[Game planner](./Game-Planner) is designed to be a tool for using when planning strategy before a match. You can download the source and run it locally, or use the link below to access it remotely.
+[Game planner](https://github.com/NetLockJ/frc-game-planner) is designed to be a tool for using when planning strategy before a match. You can download the source and run it locally, or use the link below to access it remotely.
+
+**(Has been relocated for easier changes, please refer to new link for changes/updates)**
 
 - The background comes from [Path Planner](https://github.com/mjansen4857/pathplanner) which is from their amazing path generation tool! Check it out!
-- You can use the [web version here](https://team2530.github.io/Game-Planner/)
+- You can use the [web version here](https://netlockj.github.io/frc-game-planner/)
 - Credits to [Material Icons](https://fonts.google.com/icons) where many of the icons came from
 
 ### Tools
