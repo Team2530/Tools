@@ -57,3 +57,9 @@ and once finished, hit the button again to finish drawing
 - Match Data
 - Team numbers on robots
 - Fix Arrowheads on mobile not using correct color
+
+## mutual-team-finder
+
+This very small script lists the set of teams that are attending two of the same regionals.
+
+See [its README](https://github.com/Team2530/Tools/tree/main/mutual-team-finder) for a better description.
